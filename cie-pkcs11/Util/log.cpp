@@ -51,9 +51,7 @@ void initLog(const char *moduleName, const char *iniFile,const char *version)
 
 	logGlobalVersion=version;
 	
-	OutputDebugString("File INI:");
-	OutputDebugString(iniFile);
-	OutputDebugString("\n");
+	OutputDebugString("File INI: %s\n", iniFile);
 
     UUCProperties settings;
     //settings.load(iniFile);
