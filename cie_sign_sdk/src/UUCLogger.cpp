@@ -102,7 +102,7 @@ void UUCLogger::log(const unsigned int nType, const char *szMsg, const unsigned 
     
     char szLogMsg[5000];
     sprintf(szLogMsg, "[%s], %d, %X, %s, %s\n", szTime, nType, nID, szModuleName, szMsg);
-    printf(szLogMsg);
+    printf("%s\n", szLogMsg);
     if(pfnCrashliticsLog != NULL)
         pfnCrashliticsLog(szLogMsg);
     
