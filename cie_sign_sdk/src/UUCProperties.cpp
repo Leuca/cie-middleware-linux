@@ -243,6 +243,16 @@ long UUCProperties::save(UUCByteArray& props, const char* szHeader) const
 	return 0;
 }
 
+int UUCProperties::getIntProperty(const char* szName, int nDefaultValue /*= NULL*/) const
+{
+
+    const char* szVal = getProperty(szName, NULL);
+    if(szVal)
+        return strtol(szVal, NULL, 10);
+    else
+        return nDefaultValue;
+}
+
 const char* UUCProperties::getProperty(const char* szName, const char* szDefaultValue /*= NULL*/) const
 {
 	char* szValue;
