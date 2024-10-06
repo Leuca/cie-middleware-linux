@@ -1035,13 +1035,13 @@ long disigon_get_file_from_p7m(DISIGON_CTX ctx) {
 
 
 
-    int nFileType = pContext->nInputFileType;
+	int nFileType = pContext->nInputFileType;
 
-    if(nFileType == DISIGON_FILETYPE_AUTO)
-        nFileType = get_file_type(pContext->szInputFile);
+	if(nFileType == DISIGON_FILETYPE_AUTO)
+		nFileType = get_file_type(pContext->szInputFile);
 
-    if(nFileType != DISIGON_FILETYPE_P7M)
-        return DISIGON_ERROR_INVALID_FILE;
+	if(nFileType != DISIGON_FILETYPE_P7M)
+		return DISIGON_ERROR_INVALID_FILE;
 
 	UUCByteArray data;
 	BYTE buffer[BUFFERSIZE];
