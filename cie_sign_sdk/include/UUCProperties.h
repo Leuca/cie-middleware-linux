@@ -27,6 +27,7 @@ public:
 	void putProperty(const char* szName, const char* szValue);
 	//void putProperty(char* szName, char* szValue);
 	const char* getProperty(const char* szName, const char* szDefaultValue = NULL) const;
+	int getIntProperty(const char* szName, int nDefaultValue = 0) const;
 	void remove(const char* szName);
 	void removeAll();
 
