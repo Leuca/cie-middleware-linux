@@ -18,6 +18,7 @@
  */
  
 #pragma once
+#include "definitions.h"
 #include "../PKCS11/wintypes.h"
 
 #define ERR_INDEX_OUT_OF_BOUND    0xC0001001L
