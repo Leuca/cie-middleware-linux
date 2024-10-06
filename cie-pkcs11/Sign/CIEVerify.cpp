@@ -99,6 +99,8 @@ long CIEVerify::verify(const char* input_file, VERIFY_RESULT* verifyResult, cons
 	catch (long err) {
 		LOG_ERROR("CIEVerify::verify error: %lx", err);
 	}
+
+	return 0;
 }
 
 long CIEVerify::get_file_from_p7m(const char* input_file, const char* output_file){
