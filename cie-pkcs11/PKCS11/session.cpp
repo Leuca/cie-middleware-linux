@@ -78,7 +78,8 @@ namespace p11 {
 	CK_SLOT_ID CSession::GetNewSessionID() {
 		init_func
 		dwSessionCnt++;
-		//return InterlockedIncrement(&dwSessionCnt);
+		__sync_fetch_and_add(&dwSessionCnt, 1);
+		return dwSessionCnt;
 	}
 
 	CK_SESSION_HANDLE CSession::AddSession(std::unique_ptr<CSession> pSession)
