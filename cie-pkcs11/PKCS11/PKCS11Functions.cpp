@@ -21,7 +21,7 @@
 #include <mutex>
 
 #include <cryptopp/misc.h>
-#include "../Util/UUCByteArray.h"
+#include "../ASN1/UUCByteArray.h"
 #include "../LOGGER/Logger.h"
 
 using namespace CieIDLogger;

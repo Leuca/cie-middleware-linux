@@ -12,7 +12,7 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/filters.h>
-#include "../keys.h"
+#include "keys.h"
 #include <cryptopp/sha.h>
 #include <string>
 

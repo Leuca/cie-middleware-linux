@@ -19,6 +19,7 @@ public:
 
 class scard_error : public logged_error {
 public:
+	StatusWord sw;
 	scard_error(StatusWord sw);
 };
 
