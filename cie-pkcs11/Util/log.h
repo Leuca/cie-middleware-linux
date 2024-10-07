@@ -4,6 +4,7 @@
 //#include "defines.h"
 #include <string>
 #include <wintypes.h>
+#include <cstdint>
 
 #ifndef OutputDebugString
 #define OutputDebugString printf
