@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
+#include <cstring>
 #include <sys/stat.h>
 #include <unistd.h>
 #include "Logger.h"
