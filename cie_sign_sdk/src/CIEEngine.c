@@ -15,7 +15,7 @@
 #include <openssl/ecdsa.h>
 #include <openssl/ecdh.h>
 
-unsigned char* cie_certificate;
+const unsigned char* cie_certificate;
 unsigned long cie_certlen;
 unsigned char* cie_pin;
 unsigned long cie_pinlen;
@@ -57,7 +57,7 @@ static const ENGINE_CMD_DEFN cie_engine_cmd_defns[] = {
 
 
 // Make Digest Info
-    int makeDigestInfo(int algid, unsigned char* pbtDigest, size_t btDigestLen, unsigned char* pbtDigestInfo, size_t* pbtDigestInfoLen)
+    int makeDigestInfo(int algid, const unsigned char* pbtDigest, size_t btDigestLen, unsigned char* pbtDigestInfo, size_t* pbtDigestInfoLen)
 {
     size_t requestedLen;
     switch(algid)
@@ -221,7 +221,7 @@ static int cie_pkey_rsa_sign(EVP_PKEY_CTX *evp_pkey_ctx,
     printf("call cie_pkey_rsa_sign\n");
     
     EVP_PKEY *pkey;
-    RSA *rsa;
+    const RSA *rsa;
     const EVP_MD *sig_md;
 
     printf("%s:%d cie_pkey_rsa_sign() "
@@ -338,6 +338,8 @@ EC_KEY_METHOD *cie_get_ec_key_method(void)
     static EC_KEY_METHOD *ops = NULL;
     int (*orig_sign)(int, const unsigned char *, int, unsigned char *,
         unsigned int *, const BIGNUM *, const BIGNUM *, EC_KEY *) = NULL;
+    ECDSA_SIG *(*do_sign)(const unsigned char *, int, const BIGNUM *,
+                          const BIGNUM *, EC_KEY *) = NULL;
 
     compute_key_fn ossl_ecdh_compute_key;
     
@@ -345,7 +347,7 @@ EC_KEY_METHOD *cie_get_ec_key_method(void)
     if (!ops) {
         ops = EC_KEY_METHOD_new((EC_KEY_METHOD *)EC_KEY_OpenSSL());
         EC_KEY_METHOD_get_sign(ops, &orig_sign, NULL, NULL);
-        EC_KEY_METHOD_set_sign(ops, orig_sign, NULL, &orig_sign);
+        EC_KEY_METHOD_set_sign(ops, orig_sign, NULL, do_sign);
         EC_KEY_METHOD_get_compute_key(ops, &ossl_ecdh_compute_key);
         EC_KEY_METHOD_set_compute_key(ops, cie_ecdh_compute_key);
         
@@ -469,7 +471,7 @@ static EVP_PKEY *cie_load_pubkey(ENGINE *engine, const char *s_key_id,
     
     printf("call cie_load_pubkey\n");
     
-    return 1;
+    return NULL;
 }
 
 
