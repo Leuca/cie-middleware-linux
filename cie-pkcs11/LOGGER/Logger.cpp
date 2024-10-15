@@ -265,7 +265,7 @@ void Logger::log_log(ostream& out, LogLevel level, const char* text) throw() {
 // Interface for Debug Log
 void Logger::debug(const char* fmt, ...) throw()
 {
-	char buffer[4096];
+	char buffer[8192];
 	va_list args;
 	va_start(args, fmt);
 
