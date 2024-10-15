@@ -652,11 +652,9 @@ ByteDynArray IAS::SM(ByteArray &keyEnc, ByteArray &keySig, ByteArray &apdu, Byte
 	init_func
 
 	std::string dmp;
-	ODS("%s\n", dumpHexData(seq, dmp).c_str());
 
 	increment(seq);
 
-    ODS("%s\n", dumpHexData(seq, dmp).c_str());
 
 	ByteDynArray smHead;
 	smHead = apdu.left(4);
