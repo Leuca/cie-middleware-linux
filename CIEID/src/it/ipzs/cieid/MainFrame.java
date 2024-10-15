@@ -1244,7 +1244,7 @@ public class MainFrame extends JFrame {
         MiniWebView webView = new MiniWebView();
         webView.setBounds(12, 99, 571, 362);
         panel_8.add(webView);
-        webView.showPage("https://idserver.servizicie.interno.gov.it/idp/tutorial/computer/lettoreusb/linux/tutorial_linux_firefox.jsp");
+        webView.showPage(MainFrame.class.getResource("/it/ipzs/cieid/res/tutorial_linux.html"));
         panel_9 = new JPanel();
         panel_9.setLayout(null);
         panel_9.setBackground(Color.WHITE);
