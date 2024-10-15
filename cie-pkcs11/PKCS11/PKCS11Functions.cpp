@@ -67,7 +67,7 @@ BOOL APIENTRY DllMainP11( HANDLE hModule,
 	if (ul_reason_for_call==DLL_PROCESS_ATTACH && !bModuleInit) {
 		bModuleInit=true;
 		moduleInfo.init(hModule);
-		std::string mainMutexName;
+		//std::string mainMutexName;
 		//mainMutexName="CIE_P11_Mutex_"+moduleInfo.szModuleName;
 		//p11Mutex.Create(mainMutexName.c_str());
 		//xmlInit();
@@ -326,8 +326,8 @@ CK_RV CK_ENTRY C_Initialize(CK_VOID_PTR pReserved)
 //    CK_C_INITIALIZE_ARGS_PTR ptr=(CK_C_INITIALIZE_ARGS_PTR)pReserved;
 
 	if (bP11Initialized)
-		return CKR_OK;
-	//	throw p11_error(CKR_CRYPTOKI_ALREADY_INITIALIZED)
+		throw p11_error(CKR_CRYPTOKI_ALREADY_INITIALIZED);
+	//	return CKR_OK;
 
 	// verifico che i flag siano supportati
 	CK_C_INITIALIZE_ARGS_PTR iargs = NULL_PTR;
@@ -338,8 +338,7 @@ CK_RV CK_ENTRY C_Initialize(CK_VOID_PTR pReserved)
 
 		if (iargs->flags	& CKF_OS_LOCKING_OK)
 		{
-			if ((iargs->CreateMutex) || (iargs->DestroyMutex) || (iargs->LockMutex) || (iargs->UnlockMutex))
-				throw p11_error(CKR_CANT_LOCK);
+			// Nothing to do because we will use os locking
 		}
 		else if (iargs->flags == 0)
 		{
