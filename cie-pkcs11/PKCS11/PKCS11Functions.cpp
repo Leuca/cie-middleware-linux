@@ -338,8 +338,7 @@ CK_RV CK_ENTRY C_Initialize(CK_VOID_PTR pReserved)
 
 		if (iargs->flags	& CKF_OS_LOCKING_OK)
 		{
-			if ((iargs->CreateMutex) || (iargs->DestroyMutex) || (iargs->LockMutex) || (iargs->UnlockMutex))
-				throw p11_error(CKR_CANT_LOCK);
+			// Nothing to do because we will use os locking
 		}
 		else if (iargs->flags == 0)
 		{
