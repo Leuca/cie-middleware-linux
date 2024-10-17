@@ -42,7 +42,7 @@ int PDFVerifier::Load(const char* pdf, int len)
 	try
 	{
 		m_pPdfDocument = new PdfMemDocument();
-		m_pPdfDocument->Load(pdf, len);
+		m_pPdfDocument->LoadFromBuffer(pdf, len, false);
 		m_actualLen = len;
 		m_szDocBuffer = (char*)pdf;
 		
@@ -66,7 +66,7 @@ int PDFVerifier::Load(const char* szFilePath)
     try
     {
         m_pPdfDocument = new PdfMemDocument();
-        m_pPdfDocument->Load(szFilePath);
+        m_pPdfDocument->Load(szFilePath, false);
         
         BYTE buffer[BUFFERSIZE];
         int nRead = 0;
@@ -109,7 +109,7 @@ int PDFVerifier::GetNumberOfSignatures(const char* szFilePath)
     
     try {
         
-        doc.Load(szFilePath);
+        doc.Load(szFilePath, false);
         
         pfnCrashliticsLog("file loaded");
         

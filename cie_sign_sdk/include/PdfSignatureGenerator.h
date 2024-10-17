@@ -40,8 +40,6 @@ public:
 	
 	void GetSignedPdf(UUCByteArray& signature);
 	
-	void AddFont(const char* szFontName, const char* szFontPath);
-	
 	const double getWidth(int pageIndex);
 	
 	const double getHeight(int pageIndex);
