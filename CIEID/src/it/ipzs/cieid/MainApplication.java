@@ -1,11 +1,17 @@
 package it.ipzs.cieid;
 
 import java.awt.EventQueue;
+import java.awt.AWTEvent;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.AWTEventListener;
+import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.swing.JFrame;
+import javax.swing.FocusManager;
 
 import ch.swingfx.twinkle.NotificationBuilder;
 import ch.swingfx.twinkle.event.NotificationEvent;
@@ -26,6 +32,7 @@ public class MainApplication {
 	public static void main(final String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				installKeyboardMonitor();
 
 				if(args.length > 0 && args[0].equals("pinwrong"))
 				{
@@ -49,6 +56,27 @@ public class MainApplication {
 				}
 			}
 		});
+	}
+
+	/**
+	 * Close the application on ctrl+q
+	 */
+	public static void installKeyboardMonitor() {
+		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+			@Override
+			public void eventDispatched(AWTEvent event)
+			{
+				KeyEvent ke = (KeyEvent) event;
+				if (ke.getID() == KeyEvent.KEY_PRESSED)
+				{
+					if (ke.getKeyCode() == KeyEvent.VK_Q)
+					{
+						if (ke.isControlDown())
+							System.exit(0);
+					}
+				}
+			}
+		}, AWTEvent.KEY_EVENT_MASK);
 	}
 
 	public static void showUI(String[] args)
