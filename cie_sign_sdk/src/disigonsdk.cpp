@@ -1124,7 +1124,7 @@ long verify_xml(DISIGON_VERIFY_CONTEXT* pContext, VERIFY_INFO* pVerifyInfo)
             sprintf(szAux, "%s:%s", szoid, hexval);
             pSI->pszExtensions[j] = new char[strlen(szAux) + 1];
             strcpy(pSI->pszExtensions[j], szAux);
-            delete szAux;
+            delete[] szAux;
         }
 
         UUCByteArray issuer;
@@ -1414,7 +1414,7 @@ SIGNER_INFO* verify_countersignature(DISIGON_VERIFY_CONTEXT* pContext, CSignerIn
                 sprintf(szAux, "%s:%s", szoid, hexval);
                 pSI->pszExtensions[j] = new char[strlen(szAux) + 1];
                 strcpy(pSI->pszExtensions[j], szAux);
-                delete szAux;
+                delete[] szAux;
             }
 
             //LOG_DBG((0, "verify_signed_document 2", "Estension OK"));
@@ -1664,7 +1664,7 @@ long verify_signed_document(int index, DISIGON_VERIFY_CONTEXT* pContext, CSigned
             sprintf(szAux, "%s:%s", szoid, hexval);
             pSI->pszExtensions[j] = new char[strlen(szAux) + 1];
             strcpy(pSI->pszExtensions[j], szAux);
-            delete szAux;
+            delete[] szAux;
         }
 
         //LOG_DBG((0, "verify_signed_document 2", "Estension OK"));
@@ -2131,7 +2131,7 @@ long verify_pdf(DISIGON_VERIFY_CONTEXT* pContext, UUCByteArray& data, VERIFY_INF
             sprintf(szAux, "%s:%s", szoid, hexval);
             pSI->pszExtensions[j] = new char[strlen(szAux) + 1];
             strcpy(pSI->pszExtensions[j], szAux);
-            delete szAux;
+            delete[] szAux;
         }
 
 

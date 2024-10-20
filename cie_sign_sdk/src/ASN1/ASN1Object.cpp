@@ -321,13 +321,13 @@ int CASN1Object::parseLen(UUCBufferedReader& reader, BYTE* pbtTag, UUCByteArray*
 		unsigned int n;
 		if ((n = reader.read(pbtVal, nLen)) < nLen)
 		{
-			delete pbtVal;
+			delete[] pbtVal;
 			throw CASN1ParsingException();
 		}
 
 		pValue->append(pbtVal, nLen);
 
-		delete pbtVal;
+		delete[] pbtVal;
 	}
 	return nLen;
 }

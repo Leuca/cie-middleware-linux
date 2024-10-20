@@ -53,7 +53,7 @@ PdfSignatureGenerator::~PdfSignatureGenerator()
 		delete m_pMainDocbuffer;
 	
 	if(m_pSignDocbuffer)
-		delete m_pSignDocbuffer;
+		delete[] m_pSignDocbuffer;
 	
 }
 
@@ -322,7 +322,7 @@ void PdfSignatureGenerator::GetBufferForSignature(UUCByteArray& toSign)
 
 	toSign.append((BYTE*)buffer, nRead);
 
-	delete buffer;
+	delete[] buffer;
 }
 
 void PdfSignatureGenerator::SetSignature(const char* signature, int len)
@@ -342,7 +342,7 @@ void PdfSignatureGenerator::GetSignedPdf(UUCByteArray& signedPdf)
 	
 	signedPdf.append((BYTE*)szSignedPdf, nRead);
 	
-	delete szSignedPdf;
+	delete[] szSignedPdf;
 }
 
 const double PdfSignatureGenerator::getWidth(int pageIndex) {

@@ -42,7 +42,7 @@ long UUCTextFileWriter::writeLine(const UUCByteArray& byteArray)
 
 	if(fprintf(m_pf, "%s\n", pszLine) < 0)
 	{
-		delete pszLine;
+		delete[] pszLine;
 		#ifdef WIN32
 		return GetLastError();
 #else
@@ -50,7 +50,7 @@ long UUCTextFileWriter::writeLine(const UUCByteArray& byteArray)
 #endif
 	}
 
-	delete pszLine;
+	delete[] pszLine;
 	fflush(m_pf);
 
 	return 0;
