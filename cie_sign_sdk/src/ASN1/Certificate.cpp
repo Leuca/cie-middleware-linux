@@ -89,11 +89,11 @@ CCertificate* CCertificate::createCertificate(UUCByteArray& contentArray)
 
 		UUCBufferedReader reader((BYTE*)szDecoded, decLen);
 
-		delete szContent;
+		delete[] szContent;
 		
 		CCertificate* pCert = new CCertificate(reader);
 	
-		free(szDecoded);
+		delete[] szDecoded;
 
 		return pCert;
 

@@ -145,8 +145,8 @@ CK_RV CK_ENTRY firmaConCIE(const char* inFilePath, const char* type, const char*
             
             LOG_INFO("firmaConCIE - completed, res: %d", ret);
 
-            free(ias);
-            free(cieSign);
+            delete ias;
+            delete cieSign;
 
             completedCallBack(ret);
         }

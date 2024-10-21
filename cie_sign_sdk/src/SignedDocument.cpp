@@ -79,8 +79,8 @@ CSignedDocument::CSignedDocument(const BYTE* content, int len)
 			c.append((BYTE*)szDecoded, decLen);
 
 			//LOG_DBG((0, "CSignedDocument", "append"));
-			delete szContent;
-			delete szEncoded;
+			delete[] szContent;
+			delete[] szEncoded;
 		}
 		catch(...)
 		{
