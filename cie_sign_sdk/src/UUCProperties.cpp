@@ -144,7 +144,7 @@ long UUCProperties::save(const char* szFilePath, const char* szHeader) const
 			szLine = new char[strlen(szHeader) + 3];
 			sprintf(szLine, "#%s", szHeader);
 			textFileWriter.writeLine(szLine);
-			delete szLine;
+			delete[] szLine;
 		}
 
 		time_t ltime;
@@ -154,7 +154,7 @@ long UUCProperties::save(const char* szFilePath, const char* szHeader) const
 		szLine = new char[255];
 		sprintf(szLine, "#%s", ctime( &ltime ) );		
 		textFileWriter.writeLine(szLine);
-		delete szLine;
+		delete[] szLine;
 
 		// iterate in the hashtable
 		char* szName;
@@ -169,7 +169,7 @@ long UUCProperties::save(const char* szFilePath, const char* szHeader) const
 			szLine = new char[strlen(szName) + strlen(szValue) + 2];
 			sprintf(szLine, "%s=%s", szName, szValue);	    	   
 			textFileWriter.writeLine(szLine);
-			delete szLine; 
+			delete[] szLine;
 		}				
 	}
 	catch(long nErr)
@@ -199,7 +199,7 @@ long UUCProperties::save(UUCByteArray& props, const char* szHeader) const
 			szLine = new char[strlen(szHeader) + 4];
 			sprintf(szLine, "#%s\r\n", szHeader);
 			props.append((BYTE*)szLine, strlen(szLine));
-			delete szLine;
+			delete[] szLine;
 		}
 
 		time_t ltime;
@@ -209,7 +209,7 @@ long UUCProperties::save(UUCByteArray& props, const char* szHeader) const
 		szLine = new char[255];
 		sprintf(szLine, "#%s\r\n", ctime( &ltime ) );		
 		props.append((BYTE*)szLine, strlen(szLine));
-		delete szLine;
+		delete[] szLine;
 
 		// iterate in the hashtable
 		char* szName;
@@ -224,7 +224,7 @@ long UUCProperties::save(UUCByteArray& props, const char* szHeader) const
 			szLine = new char[strlen(szName) + strlen(szValue) + 2 + 3];
 			sprintf(szLine, "%s=%s\r\n", szName, szValue);	    	   
 			props.append((BYTE*)szLine, strlen(szLine));
-			delete szLine; 
+			delete[] szLine;
 		}				
 	}
 	catch(long nErr)
