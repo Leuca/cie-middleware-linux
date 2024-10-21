@@ -42,7 +42,7 @@ CASN1ObjectIdentifier::CASN1ObjectIdentifier(const char* strObjId)
 	UINT nFirst = 40 * atoi(szTok) + atoi(strtok(NULL, "."));
 	if(nFirst > 0xff)
 	{
-		delete szOID;
+		delete[] szOID;
 		throw -1;//new CASN1BadObjectIdException(strObjId);
 	}
 	out[nIndex] = nFirst;
@@ -86,7 +86,7 @@ CASN1ObjectIdentifier::CASN1ObjectIdentifier(const char* strObjId)
 	
 	setValue(UUCByteArray(out, nIndex));
 	
-	delete szOID;
+	delete[] szOID;
 	
 }
 		
