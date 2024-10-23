@@ -1,10 +1,6 @@
-[![Join the #cie-middleware channel](https://img.shields.io/badge/Slack%20channel-%23cie--middleware-blue.svg?logo=slack)](https://developersitalia.slack.com/messages/C7FPGAG94)
-[![Get invited](https://slack.developers.italia.it/badge.svg)](https://slack.developers.italia.it/)
-[![CIE on forum.italia.it](https://img.shields.io/badge/Forum-CIE-blue.svg)](https://forum.italia.it/c/cie) [![Build Status](https://travis-ci.com/italia/cie-middleware-linux.svg?branch=master)](https://travis-ci.com/italia/cie-middleware-linux)
+# CIE 3.0 PKCS11 MIDDLEWARE [![Copr build status](https://copr.fedorainfracloud.org/coprs/lucamagrone/CIE-Middleware/package/cie-middleware/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/lucamagrone/CIE-Middleware/package/cie-middleware)
 
 CIE (Carta di Identità Elettronica) Linux middleware
-
-#  CIE 3.0 PKCS11 MIDDLEWARE [![Build status](https://ci.appveyor.com/api/projects/status/dpc0ditjn04ylw6y?svg=true)](https://ci.appveyor.com/project/italia/cie-middleware)
 
 ## Disclaimer
 
@@ -12,67 +8,56 @@ This product is **beta software**. Use it in production at your own judgment.
 
 ## Requirements
 
-- running pcscd
-- cmake >=3.15
+Install with your package manger the following packages and the corresponding development variant:
 
-- pcsclite library (for SC communication )
-- ssl library
-
-On Debian and derivatives the lib requirements can be installed with the
-packages `libpcsclite-dev libssl-dev`.
-Library versions as of Ubuntu 18.04 are reported to work.
-
-
-The official building approach is using Eclipse, for historical reasons.
-Versions from 4.18 onward are working, this is due to JDT version being tied
-to the IDE's one.
-For a more up-to-date approach using gradle check the user fork mentioned in
-the comments at [1].
-
-
-[1]: https://github.com/italia/cie-middleware-linux/issues/6
-
+- libcurl
+- bzip2
+- cryptopp
+- freetype2
+- libpng
+- libxml-2.0
+- openssl
+- libpodofo
+- zlib
+- fontconfig
+- libpcsclite
 
 ## Build
 
-Build happens in three steps:
+### libcie-pkcs11
 
-1. build signing library `cie_sign_sdk` using cmake
-1. build C++ middleware project `cie-pkcs11` using Eclipse
-1. compile Java application `CIEID` using Eclipse
+If you have installed CMake on your system you can build the libcie-pkcs11 module with:
 
-
-### cie_sign_sdk
-
-This will build a static library and copy it into `cie-pkcs11/Sign`
-
-    cd cie_sign_sdk
-    cmake -B build/
-    cmake --build build/
-    cmake --install build/
-
-### cie-pkcs11
-
-Open the repository root directory with Eclipse, its auto-discovery tool should
-find at least two projects:
-
-- cie-pkcs11, a C++ project
-- CIEID, a Java project
-
-In *Project Explorer* view, select the project root, then select menu item
-`Project > Build project`.
-This should leave a `libcie-pkcs11.so` object in Debug (the default target).
+`./build.sh` or `bash build.sh`
 
 ### CIEID
 
-These steps can be performed with or without Eclipse.
+If you have installed maven on your system you can build the project with:
 
-If using Eclipse install the *JDT* plugin, switch to "Java" *perspective*,
-select CIEID in the *Package Explorer* view, add a Debug or Run configuration
-starting `it.ipzs.cieid.MainApplication` as main class.
+`git submodule init`
 
-Add `-Djna.library.path=".:../Debug"` to VM arguments.
+`git submodule update`
 
-When directly calling the JVM be sure to make the `libcie-pkcs11.so` available
+`sed -i "s/1.5/1.6/g" Core/pom.xml`
+
+`sed -i "s/1.5/1.6/g" Twinkle/pom.xml`
+
+`cd Core && mvn package && mvn install && cd -`
+
+`cd Twinkle && mvn package && mvn install && cd -`
+
+`mvn package`
+
+`mvn install`
+
+#### Notes
+
+To start CIEID:
+
+`mvn dependency:build-classpath -Dmdep.outputFile=.cp`
+
+`java -cp $(cat .cp):target/cieid-1.0.0.jar -Djna.library.path="./libcie-pkcs11" it.ipzs.cieid.MainApplication`
+
+When directly calling the JVM be sure to make `libcie-pkcs11.so` available
 to JNA either using the `jna.library.path` property or installing the library
 in a path searched by default, e.g. `/usr/local/lib`.

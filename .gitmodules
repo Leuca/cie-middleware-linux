@@ -1,0 +1,6 @@
+[submodule "Core"]
+	path = Core
+	url = https://github.com/spreiter301/Core
+[submodule "Twinkle"]
+	path = Twinkle
+	url = https://github.com/spreiter301/Twinkle.git

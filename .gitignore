@@ -54,3 +54,6 @@ packages/**/*.rpm
 *.gz
 *.so
 libcie_sign_sdk.a
+libcie-pkcs11/
+.cp
+target/
