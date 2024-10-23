@@ -42,7 +42,11 @@ int PDFVerifier::Load(const char* pdf, int len)
 	try
 	{
 		m_pPdfDocument = new PdfMemDocument();
-		m_pPdfDocument->Load(pdf, len);
+#if PODOFO_VERSION_MINOR < 10
+		m_pPdfDocument->LoadFromBuffer(pdf, len, true);
+#else
+		m_pPdfDocument->LoadFromBuffer(bufferview(pdf, len));
+#endif
 		m_actualLen = len;
 		m_szDocBuffer = (char*)pdf;
 		
@@ -66,7 +70,11 @@ int PDFVerifier::Load(const char* szFilePath)
     try
     {
         m_pPdfDocument = new PdfMemDocument();
+#if PODOFO_VERSION_MINOR < 10
+        m_pPdfDocument->Load(szFilePath, false);
+#else
         m_pPdfDocument->Load(szFilePath);
+#endif
         
         BYTE buffer[BUFFERSIZE];
         int nRead = 0;
@@ -109,7 +117,11 @@ int PDFVerifier::GetNumberOfSignatures(const char* szFilePath)
     
     try {
         
+#if PODOFO_VERSION_MINOR < 10
+        doc.Load(szFilePath, false);
+#else
         doc.Load(szFilePath);
+#endif
         
         pfnCrashliticsLog("file loaded");
         
@@ -128,52 +140,37 @@ int PDFVerifier::GetNumberOfSignatures(const char* szFilePath)
 
 int PDFVerifier::GetNumberOfSignatures(PdfMemDocument* pPdfDocument)
 {
-    printf("GetNumberOfSignatures");
-    
 	/// Find the document catalog dictionary
+#if PODOFO_VERSION_MINOR < 10
 	const PdfObject *const trailer = pPdfDocument->GetTrailer();
 	if (!trailer->IsDictionary())
 		return -1;
 	
-	printf("trailer ok");
-    
 	const PdfObject *const catalogRef =	trailer->GetDictionary().GetKey(PdfName("Root"));
 	if (catalogRef==0 || !catalogRef->IsReference())
 		return -2;//throw std::invalid_argument("Invalid /Root entry");
 	
-	printf("Catalogref ok");
-    
 	const PdfObject *const catalog =
 	pPdfDocument->GetObjects().GetObject(catalogRef->GetReference());
 	if (catalog==0 || !catalog->IsDictionary())
 		return -3;//throw std::invalid_argument("Invalid or non-dictionary
 	//referenced by /Root entry");
 	
-	printf("catalog ok");
-    
 	/// Find the Fields array in catalog dictionary
 	const PdfObject *acroFormValue = catalog->GetDictionary().GetKey(PdfName("AcroForm"));
 	if (acroFormValue == 0) 
 		return 0;
 	
-	printf("acroform ok 1");
-    
 	if (acroFormValue->IsReference())
 		acroFormValue = pPdfDocument->GetObjects().GetObject(acroFormValue->GetReference());
 	
-	printf("acroform ok 2");
-    
 	if (!acroFormValue->IsDictionary()) 
 		return 0;
 	
-	printf("acroform ok 3");
-    
 	const PdfObject *fieldsValue = acroFormValue->GetDictionary().GetKey(PdfName("Fields"));
 	if (fieldsValue == 0) 
 		return 0;
 	
-	printf("fieldsValue ok");
-    
     try
     {
         if (fieldsValue->IsReference())
@@ -191,12 +188,18 @@ int PDFVerifier::GetNumberOfSignatures(PdfMemDocument* pPdfDocument)
         printf("First chance Exception\n");
     }
 	
-	printf("fieldsValue ok 2");
-    
 	if (!fieldsValue->IsArray()) 
 		return 0;
 	
-	printf("fieldsValue is array");
+#else
+	auto& acroForm = pPdfDocument->GetOrCreateAcroForm();
+	const PdfObject *fieldsValue = acroForm.GetObject().GetDictionary().GetKey("Fields");
+	if(fieldsValue->GetDataType() == PdfDataType::Reference)
+		fieldsValue = pPdfDocument->GetObjects().GetObject(fieldsValue->GetReference());
+
+	if(!fieldsValue || fieldsValue->GetDataType() != PdfDataType::Array)
+		return 0;
+#endif
     
 	/// Verify if each object of the array is a signature field
 	int n = 0;
@@ -228,6 +231,7 @@ int PDFVerifier::VerifySignature(int index, const char* szDate, char* signatureT
 		return -1;
 	
 	/// Find the document catalog dictionary
+#if PODOFO_VERSION_MINOR < 10
 	const PdfObject *const trailer = m_pPdfDocument->GetTrailer();
 	if (!trailer->IsDictionary())
 		return -1;
@@ -266,8 +270,17 @@ int PDFVerifier::VerifySignature(int index, const char* szDate, char* signatureT
 	if (!fieldsValue->IsArray()) 
 		return 0;
 	
-	vector<const PdfObject*> signatureVector;
+#else
+	auto& acroForm = m_pPdfDocument->GetOrCreateAcroForm();
+	const PdfObject *fieldsValue = acroForm.GetObject().GetDictionary().GetKey("Fields");
+	if(fieldsValue->GetDataType() == PdfDataType::Reference)
+		fieldsValue = m_pPdfDocument->GetObjects().GetObject(fieldsValue->GetReference());
 	
+	if(!fieldsValue || fieldsValue->GetDataType() != PdfDataType::Array)
+		return 0;
+#endif
+	vector<const PdfObject*> signatureVector;
+
 	/// Verify if each object of the array is a signature field
 	const PdfArray &array = fieldsValue->GetArray();
 	for (unsigned int i=0; i<array.size(); i++) 
@@ -298,10 +311,16 @@ int PDFVerifier::VerifySignature(const PdfMemDocument* pDoc, const PdfObject *co
 	if (keyFTValue == 0) 
 		return -2;
 	
+#if PODOFO_VERSION_MINOR < 10
 	string value;
 	keyFTValue->ToString(value);
 	if (value != "/Sig") 
 		return -3;
+#else
+	const PdfName value = keyFTValue->GetName();
+	if (value != "Sig")
+		return -3;
+#endif
 	
 	const PdfObject *const keyVValue = pObj->GetDictionary().GetKey(PdfName("V"));
 	if (keyVValue == 0) 
@@ -322,6 +341,12 @@ int PDFVerifier::VerifySignature(const PdfMemDocument* pDoc, const PdfObject *co
 		
 		const PdfObject *const keySubFilter = signature->GetDictionary().GetKey(PdfName("SubFilter"));
 		keySubFilter->ToString(subfilter);
+
+#if PODOFO_VERSION_MINOR >= 10
+		// Podofo 0.10.x adds an invisible trailing character that makes comparison fail
+		if(!subfilter.empty())
+			subfilter.pop_back();
+#endif
 		
 		const char* szEntry = strtok((char*)byteRange.c_str(), " []");
 		
@@ -343,7 +368,7 @@ int PDFVerifier::VerifySignature(const PdfMemDocument* pDoc, const PdfObject *co
 		CSignedData signedData(signedDocument.getSignedData());
 		
 		strcpy(signatureType, subfilter.c_str());
-		
+
 		if(subfilter == "/adbe.pkcs7.detached" || subfilter == "/ETSI.CAdES.detached")
 		{
 			//NSLog(@"detached %s", subfilter.c_str());
@@ -385,7 +410,7 @@ int PDFVerifier::VerifySignature(const PdfMemDocument* pDoc, const PdfObject *co
 		else if(subfilter == "/adbe.pkcs7.sha1")
 		{
 			//NSLog(@"sha1 %s", subfilter.c_str());
-			
+
 			return signedData.verify(0, szDate, pRevocationInfo);
 			
 		}
@@ -427,10 +452,16 @@ bool PDFVerifier::IsSignatureField(const PdfMemDocument* pDoc, const PdfObject *
 	if (keyFTValue == 0) 
 		return false;
 	
+#if PODOFO_VERSION_MINOR < 10
 	string value;
 	keyFTValue->ToString(value);
 	if (value != "/Sig") 
 		return false;
+#else
+	const PdfName value = keyFTValue->GetName();
+	if (value != "Sig")
+		return false;
+#endif
 	
 	const PdfObject *const keyVValue = pObj->GetDictionary().GetKey(PdfName("V"));
 	if (keyVValue == 0) 
@@ -439,8 +470,7 @@ bool PDFVerifier::IsSignatureField(const PdfMemDocument* pDoc, const PdfObject *
 	const PdfObject *const signature = pDoc->GetObjects().GetObject(keyVValue->GetReference());
 	if (signature->IsDictionary()) 
 		return true;
-	else 
-		return false;
+	return false;
 }
 
 
@@ -450,6 +480,7 @@ int PDFVerifier::GetSignature(int index, UUCByteArray& signedDocument, Signature
 		return -1;
 	
 	/// Find the document catalog dictionary
+#if PODOFO_VERSION_MINOR < 10
 	const PdfObject *const trailer = m_pPdfDocument->GetTrailer();
 	if (!trailer->IsDictionary())
 		return -1;
@@ -484,7 +515,16 @@ int PDFVerifier::GetSignature(int index, UUCByteArray& signedDocument, Signature
 	
 	if (!fieldsValue->IsArray()) 
 		return -7;
+#else
+	auto& acroForm = m_pPdfDocument->GetOrCreateAcroForm();
+	const PdfObject *fieldsValue = acroForm.GetObject().GetDictionary().GetKey("Fields");
+	if(fieldsValue->GetDataType() == PdfDataType::Reference)
+		fieldsValue = m_pPdfDocument->GetObjects().GetObject(fieldsValue->GetReference());
 	
+	if(!fieldsValue || fieldsValue->GetDataType() != PdfDataType::Array)
+		return -7;
+#endif
+
 	vector<const PdfObject*> signatureVector;
 	
 	/// Verify if each object of the array is a signature field
@@ -517,10 +557,16 @@ int PDFVerifier::GetSignature(const PdfMemDocument* pDoc, const PdfObject *const
 	if (keyFTValue == 0) 
 		return -2;
 	
+#if PODOFO_VERSION_MINOR < 10
 	string value;
 	keyFTValue->ToString(value);
 	if (value != "/Sig") 
 		return -3;
+#else
+	const PdfName value = keyFTValue->GetName();
+	if (value != "Sig")
+		return -3;
+#endif
 	
 	const PdfObject *const keyVValue = pObj->GetDictionary().GetKey(PdfName("V"));
 	if (keyVValue == 0) 
@@ -533,13 +579,22 @@ int PDFVerifier::GetSignature(const PdfMemDocument* pDoc, const PdfObject *const
 	}
 	
 	PdfArray rectArray = keyRect->GetArray();
+#if PODOFO_VERSION_MINOR < 10
 	PdfRect rect;
+#else
+	Rect rect;
+#endif
 	rect.FromArray(rectArray);
 	
 	appearanceInfo.left = rect.GetLeft();
 	appearanceInfo.bottom = rect.GetBottom();
+#if PODOFO_VERSION_MINOR < 10
 	appearanceInfo.width = rect.GetWidth();
 	appearanceInfo.heigth = rect.GetHeight();
+#else
+	appearanceInfo.width = rect.Width;
+	appearanceInfo.heigth = rect.Height;
+#endif
 	
 	
 	const PdfObject *const signature = pDoc->GetObjects().GetObject(keyVValue->GetReference());
