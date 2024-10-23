@@ -2845,7 +2845,7 @@ public class MainFrame extends JFrame {
 
     private void drawText(String text, String path) {
         BufferedImage bufferedImage = new BufferedImage(1, 1,
-                BufferedImage.TYPE_INT_RGB);
+                BufferedImage.TYPE_INT_ARGB);
         Graphics graphics = bufferedImage.getGraphics();
 
         try {
@@ -2890,10 +2890,10 @@ public class MainFrame extends JFrame {
             graphics.setFont(customFont.deriveFont(Font.LAYOUT_LEFT_TO_RIGHT, 150f));
             FontMetrics fM = graphics.getFontMetrics();
             bufferedImage = new BufferedImage(fM.stringWidth(text), fM.getHeight(),
-                                              BufferedImage.TYPE_INT_RGB);
+                                              BufferedImage.TYPE_INT_ARGB);
             graphics = bufferedImage.getGraphics();
             graphics.setFont(customFont.deriveFont(Font.LAYOUT_LEFT_TO_RIGHT, 150f));
-            graphics.setColor(Color.white);
+            graphics.setColor(new Color(255, 255, 255,0));
             graphics.fillRect(0, 0, fM.stringWidth(text), fM.getHeight());
             graphics.setColor(Color.BLACK);
             graphics.drawString(text, 0, fM.getAscent());
