@@ -33,8 +33,10 @@ USE_LOG;
 PdfSignatureGenerator::PdfSignatureGenerator() :
 	m_pSignatureField(NULL),
 	m_pSignOutputDevice(NULL),
+#if PODOFO_VERSION_MINOR < 10
 	m_pFinalOutDevice(NULL),
 	m_pSignDocbuffer(NULL),
+#endif
 	m_pPdfDocument(NULL) {}
 
 PdfSignatureGenerator::~PdfSignatureGenerator()
@@ -42,17 +44,21 @@ PdfSignatureGenerator::~PdfSignatureGenerator()
 	if(m_pPdfDocument)
 		delete m_pPdfDocument;
 
+#if PODOFO_VERSION_MINOR < 10
 	if(m_pSignatureField)
 		delete m_pSignatureField;
+#endif
 	
 	if(m_pSignOutputDevice)
 		delete m_pSignOutputDevice;
 	
+#if PODOFO_VERSION_MINOR < 10
 	if(m_pFinalOutDevice)
 		delete m_pFinalOutDevice;
 	
 	if(m_pSignDocbuffer)
 		delete m_pSignDocbuffer;
+#endif
 }
 
 int PdfSignatureGenerator::Load(const char* pdf, int len)
@@ -63,10 +69,19 @@ int PdfSignatureGenerator::Load(const char* pdf, int len)
 	try
 	{
 		m_pPdfDocument = new PdfMemDocument();
+#if PODOFO_VERSION_MINOR < 10
 		m_pPdfDocument->LoadFromBuffer(pdf, len, true);
 
 		m_actualLen = len;
 
+#else
+		// Copy pdf buffer for later use
+		auto input = std::make_shared<SpanStreamDevice>(bufferview(pdf, len));
+		m_pSignOutputDevice = new BufferStreamDevice(m_pOutputBuffer);
+		input->CopyTo(*m_pSignOutputDevice);
+
+		m_pPdfDocument->LoadFromBuffer(bufferview(pdf, len));
+#endif
 		return PDFVerifier::GetNumberOfSignatures(m_pPdfDocument);
 	}
     catch(::PoDoFo::PdfError& err)
@@ -96,6 +111,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	//printf("--> InitSignature %d, %f, %f, %f, %f, %s, %s, %s, %s, %s, %s, %s, %s\n", pageIndex, left, bottom, width, height, szReason, szName, szLocation, szFieldName, szSubFilter, szImagePath, szGraphometricData, szVersion);
     //LOG_DBG((0, "--> InitSignature", ""));
     
+#if PODOFO_VERSION_MINOR < 10
 	int fulllen = m_actualLen * 2 + SIGNATURE_SIZE * 2;
 
 	if(m_pSignatureField)
@@ -106,6 +122,13 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 
 	float cropBoxWidth = cropBox.GetWidth();
 	float cropBoxHeight = cropBox.GetHeight();
+#else
+	PdfPage* pPage = &m_pPdfDocument->GetPages().GetPageAt(pageIndex);
+	Rect cropBox = pPage->GetCropBox();
+
+	float cropBoxWidth = cropBox.Width;
+	float cropBoxHeight = cropBox.Height;
+#endif
     
 	float left0 = left * cropBoxWidth;
 	float bottom0 = cropBoxHeight - (bottom * cropBoxHeight);
@@ -113,6 +136,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	float width0 = width * cropBoxWidth;
 	float height0 = height * cropBoxHeight;
 
+#if PODOFO_VERSION_MINOR < 10
 	PdfRect rect(left0, bottom0, width0, height0);
 
 	PdfAcroForm* acroForm = m_pPdfDocument->GetAcroForm();
@@ -126,6 +150,14 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	pAnnot->SetFlags(static_cast<EPdfAnnotationFlags>(0x84));
 
 	m_pSignatureField = new PdfSignatureField(pAnnot, acroForm, m_pPdfDocument);
+#else
+	Rect rect(left0, bottom0, width0, height0);
+
+	m_pSignatureField = &pPage->CreateField<PdfSignature>(PdfString(szFieldName), rect);
+	m_pSignatureField->EnsureValueObject();
+
+	m_pSignatureField->MustGetWidget().SetFlags(static_cast<PdfAnnotationFlags>(0x84));
+#endif
 
 	LOG_DBG((0, "InitSignature", "PdfSignatureField OK"));
 
@@ -139,6 +171,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 
 	LOG_DBG((0, "InitSignature", "szReason OK"));
 
+#if PODOFO_VERSION_MINOR < 10
 	// /T: SignatureN
 	if(szFieldName && szFieldName[0])
 	{
@@ -148,6 +181,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	}
 
 	LOG_DBG((0, "InitSignature", "szFieldName OK"));
+#endif
 
 	if(szLocation && szLocation[0])
 	{
@@ -158,6 +192,9 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	LOG_DBG((0, "InitSignature", "szLocation OK"));
 
 	PdfDate now;
+#if PODOFO_VERSION_MINOR >= 10
+	now = PdfDate::LocalNow();
+#endif
 	m_pSignatureField->SetSignatureDate(now);
 
 	LOG_DBG((0, "InitSignature", "Date OK"));
@@ -166,8 +203,12 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	// Shouldn't this go in /M? Goes in /Name
 	if(szName && szName[0])
 	{
+#if PODOFO_VERSION_MINOR < 10
 		m_pSignatureField->GetSignatureObject()->GetDictionary()
 			.AddKey(PdfName("Name"), PdfObject(PdfString(szName)));
+#else
+		m_pSignatureField->SetSignerName(PdfString(szName));
+#endif
 	}
 
 	LOG_DBG((0, "InitSignature", "szName OK"));
@@ -175,7 +216,11 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	// Create graphical signature with stamp if we have a picture
 	if(width * height > 0)
 	{
+#if PODOFO_VERSION_MINOR < 10
 		PdfXObject sigXObject(rect, m_pPdfDocument);
+#else
+		auto sigXObject = m_pPdfDocument->CreateXObjectForm(rect);
+#endif
 		PdfPainter painter;
 
 		try
@@ -185,12 +230,21 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 			streampos imgBufferSize = 0;
 			ifstream img(szImagePath, ios::in|ios::binary|ios::ate);
 			std::string signatureStamp;
+#if PODOFO_VERSION_MINOR < 10
 			PdfImage image(m_pPdfDocument);
+#else
+			auto image = m_pPdfDocument->CreateImage();
+#endif
 
 			// Copy the image in a buffer
 			if(img.is_open())
 			{
 				imgBufferSize = img.tellg();
+
+				// Increase space we have to allocate
+#if PODOFO_VERSION_MINOR < 10
+				fulllen += imgBufferSize * 2;
+#endif
 
 				imgBuffer = new char[imgBufferSize];
 				img.seekg(0, ios::beg);
@@ -210,21 +264,35 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 				signatureStamp.append(szReason);
 			}
 
+#if PODOFO_VERSION_MINOR < 10
 			image.LoadFromPngData((const unsigned char*)imgBuffer, imgBufferSize);
 			// Scale using width to try to avoid squeezing image
 			scale = (width0 / image.GetWidth());
+#else
+			image->LoadFromBuffer(bufferview(imgBuffer, imgBufferSize));
+			scale = (width0 / image->GetWidth());
+#endif
 
 			// Draw signature
+#if PODOFO_VERSION_MINOR < 10
 			painter.SetPage(&sigXObject);
+#else
+			painter.SetCanvas(*sigXObject);
+#endif
 			painter.Save();
 			painter.Restore();
+#if PODOFO_VERSION_MINOR < 10
 			painter.DrawImage(left0, bottom0, &image, scale, scale);
+#else
+			painter.DrawImage(*image, left0, bottom0, scale, scale);
+#endif
 
 			// Release buffer memory
 			if(imgBufferSize != 0)
 				delete[] imgBuffer;
 
 			// Create signature stamp
+#if PODOFO_VERSION_MINOR < 10
 			PdfFont* font = m_pPdfDocument->CreateFont(FONT_NAME, false,
 					PdfEncodingFactory::GlobalWinAnsiEncodingInstance(),
 					// We set no embedding but it doesn't work
@@ -291,8 +359,30 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	{
 		printf("PdfError: %s\n", err.what());
 	}
+#else
+			PdfFont* font = m_pPdfDocument->GetFonts().SearchFont(FONT_NAME);
+			Rect sigRect = Rect(left0 + TXT_PAD, bottom0 - (TXT_PAD * 2), width0, height0);
+			painter.TextState.SetFont(*font, FONT_SIZE);
+			painter.DrawTextMultiLine(signatureStamp, sigRect);
+
+			m_pSignatureField->SetAppearanceStream(*sigXObject);
+
+			LOG_DBG((0, "InitSignature", "SetAppearanceStream OK"));
+
+			// Remove the font we embedded
+			m_pPdfDocument->GetAcroForm()->GetObject().GetDictionary().RemoveKey(PdfName("DR"));
+			m_pPdfDocument->GetAcroForm()->GetObject().GetDictionary().RemoveKey(PdfName("DA"));
+		}
+		catch(...)
+		{
+		}
+
+		painter.FinishDrawing();
+	}
+#endif
 }
 
+#if PODOFO_VERSION_MINOR < 10
 void PdfSignatureGenerator::GetBufferForSignature(UUCByteArray& toSign)
 {
 	int len = m_pSignOutputDevice->GetLength() * 2;
@@ -319,6 +409,7 @@ void PdfSignatureGenerator::SetSignature(const char* signature, int len)
 	m_pSignOutputDevice->SetSignature(signatureData);
 	m_pSignOutputDevice->Flush();
 }
+#endif
 
 void PdfSignatureGenerator::GetSignedPdf(UUCByteArray& signedPdf)
 {
@@ -326,25 +417,38 @@ void PdfSignatureGenerator::GetSignedPdf(UUCByteArray& signedPdf)
 	char* szSignedPdf = new char[finalLength];
 	
 	m_pSignOutputDevice->Seek(0);
+#if PODOFO_VERSION_MINOR < 10
 	int nRead = m_pSignOutputDevice->Read(szSignedPdf, finalLength);
 
 	signedPdf.append((BYTE*)szSignedPdf, nRead);
+#else
+	m_pSignOutputDevice->Read(szSignedPdf, finalLength);
+	signedPdf.append((BYTE*)szSignedPdf, finalLength);
+#endif
 
 	delete szSignedPdf;
 }
 
 const double PdfSignatureGenerator::getWidth(int pageIndex) {
 	if (m_pPdfDocument) {
+#if PODOFO_VERSION_MINOR < 10
 		PdfPage* pPage = m_pPdfDocument->GetPage(pageIndex);
 		return pPage->GetPageSize().GetWidth();
+#else
+		return m_pPdfDocument->GetPages().GetPageAt(pageIndex).GetRect().Width;
+#endif
 	}
 	return 0;
 }
 
 const double PdfSignatureGenerator::getHeight(int pageIndex) {
 	if (m_pPdfDocument) {
+#if PODOFO_VERSION_MINOR < 10
 		PdfPage* pPage = m_pPdfDocument->GetPage(pageIndex);
 		return pPage->GetPageSize().GetHeight();
+#else
+		return m_pPdfDocument->GetPages().GetPageAt(pageIndex).GetRect().Height;
+#endif
 	}
 	return 0;
 }
