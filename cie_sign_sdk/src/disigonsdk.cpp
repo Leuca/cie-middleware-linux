@@ -22,7 +22,7 @@
 #include "CIESigner.h"
 #include <libxml/xmlmemory.h>
 #include <libxml/tree.h>
-#include "podofo/podofo.h"
+#include <podofo/podofo.h>
 #include <string.h>
 
 #ifdef WIN32
@@ -1959,12 +1959,12 @@ long sign_pdf(DISIGON_SIGN_CONTEXT* pContext, UUCByteArray& data)
     
     LOG_DBG((0, "sign_pdf", "InitSignature OK"));
 
+    pContext->pSignatureGenerator->SetHashAlgo(pContext->nHashAlgo);
+
     UUCByteArray buffer;
     sigGen.GetBufferForSignature(buffer);
 
     pContext->pSignatureGenerator->SetData(buffer);
-
-    pContext->pSignatureGenerator->SetHashAlgo(pContext->nHashAlgo);
 
     LOG_DBG((0, "sign_pdf", "Generate"));
 
