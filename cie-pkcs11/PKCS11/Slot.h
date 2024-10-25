@@ -96,6 +96,7 @@ public:
 	void DelP11Object(const std::shared_ptr<CP11Object>& pObject);
 	void ClearP11Objects();
 	bool IsTokenPresent();
+	bool IsTokenRecognised();
 
 	P11ObjectVector P11Objects; // vettore degli oggetti
 

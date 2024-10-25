@@ -276,7 +276,7 @@ CK_RV CK_ENTRY C_GetSlotList(CK_BBOOL tokenPresent, CK_SLOT_ID_PTR pSlotList, CK
 			it--;
 			std::shared_ptr<CSlot> pSlot=it->second;
 
-			if (pSlot->IsTokenPresent()) {
+			if (pSlot->IsTokenPresent() && pSlot->IsTokenRecognised()) {
 				if (pSlotList) {
 					if (iCnt<*pulCount)
 						pSlotList[iCnt]=pSlot->hSlot;
@@ -299,11 +299,16 @@ CK_RV CK_ENTRY C_GetSlotList(CK_BBOOL tokenPresent, CK_SLOT_ID_PTR pSlotList, CK
 			while (it!=CSlot::g_mSlots.begin())
 			{
 				it--;
-				if (iCnt<*pulCount)
-					pSlotList[iCnt]=it->first;
-				else
-					bOver=true;
-				iCnt++;
+				std::shared_ptr<CSlot> pSlot=it->second;
+
+				if (!pSlot->IsTokenPresent() || pSlot->IsTokenRecognised())
+				{
+					if (iCnt<*pulCount)
+						pSlotList[iCnt]=it->first;
+					else
+						bOver=true;
+					iCnt++;
+				}
 			}
 		}
 	}

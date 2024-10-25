@@ -362,6 +362,23 @@ namespace p11 {
 		}
 	}
 
+	bool CSlot::IsTokenRecognised()
+	{
+		init_func
+
+		if (pTemplate == nullptr)
+			pTemplate = CCardTemplate::GetTemplate(*this);
+
+		if (pTemplate == nullptr)
+			return false;
+
+		std::vector<uint8_t> atr_vector(baATR.data(), baATR.data() + baATR.size());
+		if (get_type(atr_vector) == CIE_Type::CIE_Unknown)
+			return false;
+
+		return true;
+	}
+
 	void CSlot::GetInfo(CK_SLOT_INFO_PTR pInfo)
 	{
 		init_func
