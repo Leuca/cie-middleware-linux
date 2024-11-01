@@ -211,7 +211,17 @@ CK_RV CK_ENTRY AbilitaCIE(const char*  szPAN, const char*  szPIN, int* attempts,
             foundCIE = false;
             
             ias.token.Reset();
-            ias.SelectAID_IAS();
+            // Continue looking for CIE if the token is unrecognised
+            try
+            {
+                ias.SelectAID_IAS();
+            }
+            catch(logged_error &err)
+            {
+                free(ATR);
+                ATR = NULL;
+                continue;
+            }
             ias.ReadPAN();
         
             
@@ -227,6 +237,8 @@ CK_RV CK_ENTRY AbilitaCIE(const char*  szPAN, const char*  szPIN, int* attempts,
             if (ias.IsEnrolled())
             {
                 LOG_ERROR("AbbinaCIE - CIE already enabled. Serial number: %s\n", IdServizi.data());
+                free(readers);
+                free(ATR);
                 return CARD_ALREADY_ENABLED;
             }
 
@@ -391,6 +403,9 @@ CK_RV CK_ENTRY AbilitaCIE(const char*  szPAN, const char*  szPIN, int* attempts,
             
             std::string fullname = name + " " + surname;
             completedCallBack(span.c_str(), fullname.c_str(), st_serial.c_str());
+
+            // A this point a CIE has been found, stop looking for it
+            break;
 		}
         
 		if (!foundCIE) {
