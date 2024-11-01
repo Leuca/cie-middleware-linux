@@ -118,7 +118,17 @@ CK_RV CK_ENTRY CambioPIN(const char*  szCurrentPIN, const char*  szNewPIN, int* 
             ias.attemptsRemaining = -1;
             
             ias.token.Reset();
-            ias.SelectAID_IAS();
+            // Continue looking for CIE if the token is unrecognised
+            try
+            {
+                ias.SelectAID_IAS();
+            }
+            catch(logged_error &err)
+            {
+                free(ATR);
+                ATR = NULL;
+                continue;
+            }
             ias.ReadPAN();
             
             progressCallBack(20, "Lettura dati dalla CIE");
@@ -204,6 +214,9 @@ CK_RV CK_ENTRY CambioPIN(const char*  szCurrentPIN, const char*  szNewPIN, int* 
             
             progressCallBack(100, "Cambio PIN eseguito");
             LOG_INFO("******** PINManager::ChangePIN Completed ********");
+
+            // A this point a CIE has been found, stop looking for it
+            break;
         }
         
         if (!foundCIE) {
@@ -308,7 +321,17 @@ CK_RV CK_ENTRY SbloccoPIN(const char*  szPUK, const char*  szNewPIN, int* pAttem
             ias.attemptsRemaining = -1;
             
             ias.token.Reset();
-            ias.SelectAID_IAS();
+            // Continue looking for CIE if the token is unrecognised
+            try
+            {
+                ias.SelectAID_IAS();
+            }
+            catch(logged_error &err)
+            {
+                free(ATR);
+                ATR = NULL;
+                continue;
+            }
             ias.ReadPAN();
             
             progressCallBack(30, "Lettura dati dalla CIE");
@@ -394,6 +417,9 @@ CK_RV CK_ENTRY SbloccoPIN(const char*  szPUK, const char*  szNewPIN, int* pAttem
             
             progressCallBack(100, "Sblocco carta eseguito");
             LOG_INFO("******** PINManager::UnlockPIN Completed ********");
+
+            // A this point a CIE has been found, stop looking for it
+            break;
         }
         
         if (!foundCIE) {
