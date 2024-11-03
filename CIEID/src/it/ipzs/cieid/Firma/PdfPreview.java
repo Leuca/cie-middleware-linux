@@ -47,7 +47,7 @@ public class PdfPreview {
 		imgPanel.setLayout(new BorderLayout(0,0));
 		imgPanel.setBackground(Color.white);
 		signImage = new MoveablePicture(signImagePath);
-		imgPanel.add(signImage );
+		imgPanel.add(signImage);
 		imgPanel.add(imgLabel);
 		
 		try {
@@ -79,7 +79,7 @@ public class PdfPreview {
 		}
     }
     
-    private void showPreview()
+    public void showPreview()
     {
     	Image tmpImg = images.get(pdfPageIndex);
     	
@@ -89,17 +89,19 @@ public class PdfPreview {
     	int tmpImgWidth = tmpImg.getWidth(null);
     	int tmpImgHeight =  tmpImg.getHeight(null);
     	
-    	int imgHeigth = height;
+    	int imgHeight = height;
     	int imgWidth = width;
     
+    	double signImgMult = 1.0;
+
     	if( tmpImgWidth > tmpImgHeight)
     	{
-    		imgHeigth  = (int)(width*tmpImgHeight)/tmpImgWidth;
+    		imgHeight  = (int)(width*tmpImgHeight)/tmpImgWidth;
     		
-    		if(imgHeigth > height)
+    		if(imgHeight > height)
     		{
     			imgWidth = (int)(height*tmpImgWidth)/tmpImgHeight;
-				imgHeigth = (int)(imgWidth*tmpImgHeight)/tmpImgWidth;
+				imgHeight = (int)(imgWidth*tmpImgHeight)/tmpImgWidth;
     		}
     	}else
     	{
@@ -107,13 +109,16 @@ public class PdfPreview {
                     
             if(imgWidth > width)
             {
-            	imgHeigth = (int)(width*imgHeigth)/tmpImgWidth;
-        		imgWidth = (int)(imgHeigth*tmpImgWidth)/imgHeigth;
+            	imgHeight = (int)(width*tmpImgHeight)/tmpImgWidth;
+        		imgWidth = (int)(imgHeight*tmpImgWidth)/tmpImgHeight;
             }
     	}
     	
+		signImgMult = imgWidth / 300.0;
     	
-		imgIcon.setImage(tmpImg.getScaledInstance(imgWidth, imgHeigth, Image.SCALE_AREA_AVERAGING));
+		signImage.setSize((int)(50.0 * signImgMult), (int)(25.0 * signImgMult));
+		signImage.reloadImage();
+		imgIcon.setImage(tmpImg.getScaledInstance(imgWidth, imgHeight, Image.SCALE_AREA_AVERAGING));
 		imgLabel.setIcon(imgIcon);
 		imgLabel.setHorizontalAlignment(JLabel.CENTER);
 		imgLabel.setVerticalAlignment(JLabel.CENTER);
@@ -121,7 +126,7 @@ public class PdfPreview {
 	    imgLabel.repaint();
 		
 		//imgPanel.removeAll();
-		imgPanel.setMaximumSize(new Dimension(imgWidth, imgHeigth));
+		imgPanel.setMaximumSize(new Dimension(imgWidth, imgHeight));
 		imgPanel.updateUI();
 		
 		prPanel.removeAll();

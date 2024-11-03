@@ -16,7 +16,7 @@
 #define MAX_TMP 1000
 #define FONT_NAME "DejaVu Sans"
 #define FONT_SIZE 5.0
-#define TXT_PAD 5
+#define TXT_PAD 5.5
 
 #ifdef CreateFont
 #undef CreateFont
@@ -297,7 +297,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 					PdfEncodingFactory::GlobalWinAnsiEncodingInstance(),
 					// We set no embedding but it doesn't work
 					PdfFontCache::eFontCreationFlags_AutoSelectBase14, false);
-			PdfRect sigRect = PdfRect(left0 + TXT_PAD, bottom0 - (TXT_PAD * 2), width0, height0);
+			PdfRect sigRect = PdfRect(left0 + TXT_PAD, bottom0 - TXT_PAD, width0, height0);
 			painter.SetFont(font);
 			font->SetFontSize(FONT_SIZE);
 			painter.DrawMultiLineText(sigRect, PdfString(signatureStamp));
@@ -361,7 +361,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	}
 #else
 			PdfFont* font = m_pPdfDocument->GetFonts().SearchFont(FONT_NAME);
-			Rect sigRect = Rect(left0 + TXT_PAD, bottom0 - (TXT_PAD * 2), width0, height0);
+			Rect sigRect = Rect(left0 + TXT_PAD, bottom0 - TXT_PAD, width0, height0);
 			painter.TextState.SetFont(*font, FONT_SIZE);
 			painter.DrawTextMultiLine(signatureStamp, sigRect);
 
