@@ -2,6 +2,7 @@ package it.ipzs.cieid;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -13,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -179,6 +182,7 @@ public class MainFrame extends JFrame {
     private JLabel lblChangePINText;
     private JTextPane txtpnThePINOfYourCIE;
     private JLabel label_6;
+    private JLabel lblUnlockCard1;
     private JCheckBox checkBox_3;
     private JLabel labelProgressChangePIN;
     private JProgressBar progressBarChangePIN;
@@ -195,7 +199,7 @@ public class MainFrame extends JFrame {
     private JTextPane textPane_2;
     private JPasswordField puk01;
     private JPanel panel_7;
-    private JLabel lblUnlockCard;
+    private JLabel lblUnlockCard2;
     private JTextPane txtpnTypeThePUKOfYourCIE;
     private JLabel label_8;
     private JCheckBox checkBox_5;
@@ -410,10 +414,10 @@ public class MainFrame extends JFrame {
         loadLogConfigFromFile();
         logger.Info("Inizializza frame principale");
         signOperation = SignOp.OP_NONE;
-        setResizable(false);
         setBackground(Color.WHITE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 800, 600);
+        setMinimumSize(new Dimension(800, 600));
         contentPane = new JPanel();
         contentPane.setBackground(Color.WHITE);
         contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -648,8 +652,8 @@ public class MainFrame extends JFrame {
         btnSettings.setBackground(SystemColor.window);
         btnSettings.setBounds(0, 490, 200, 45);
         leftPanel.add(btnSettings);
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setBounds(200, -65, 600, 635);
+        tabbedPane = new JTabbedPane(JTabbedPane.BOTTOM);
+        tabbedPane.setBounds(200, -4, 603, 669);
         tabbedPane.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -840,7 +844,7 @@ public class MainFrame extends JFrame {
         buttonsPanel.setBackground(new Color(255, 255, 255));
         FlowLayout flowLayout = (FlowLayout) buttonsPanel.getLayout();
         flowLayout.setHgap(100);
-        buttonsPanel.setBounds(133, 500, 384, 36);
+        buttonsPanel.setBounds(133, 507, 384, 36);
         btnCancel = new JButton("Annulla");
         btnCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -908,7 +912,7 @@ public class MainFrame extends JFrame {
         cieCarousel.setLocation(0, 170);
         pnCIEHomeSelector_Index_3.add(cieCarousel);
         btnPanel = new JPanel();
-        btnPanel.setBounds(0, 500, 595, 46);
+        btnPanel.setBounds(0, 507, 595, 46);
         btnPanel.setBackground(Color.WHITE);
         btnRemoveAll = new JButton("Rimuovi tutte");
         btnRemoveAll.addActionListener(new ActionListener() {
@@ -1008,7 +1012,7 @@ public class MainFrame extends JFrame {
         txtpnCIEPanelsSubtitle.setEditable(false);
         txtpnCIEPanelsSubtitle.setFont(new Font("Dialog", Font.PLAIN, 16));
         txtpnCIEPanelsSubtitle.setText("Carta di Identità Elettronica abbinata correttamente");
-        txtpnCIEPanelsSubtitle.setBounds(63, 84, 492, 46);
+        txtpnCIEPanelsSubtitle.setBounds(50, 84, 492, 46);
         pnCIEHomeSelector_Index_3.add(txtpnCIEPanelsSubtitle);
         pnChangePINTypingScreen_Index_4 = new JPanel();
         pnChangePINTypingScreen_Index_4.setLayout(null);
@@ -1043,7 +1047,7 @@ public class MainFrame extends JFrame {
         });
         btnPerformChangePIN.setForeground(Color.WHITE);
         btnPerformChangePIN.setBackground(new Color(30, 144, 255));
-        btnPerformChangePIN.setBounds(206, 507, 114, 25);
+        btnPerformChangePIN.setBounds(223, 507, 114, 25);
         pnChangePINTypingScreen_Index_4.add(btnPerformChangePIN);
         lblTypeTheOldValue = new JLabel("Inserisci il vecchio PIN");
         lblTypeTheOldValue.setHorizontalAlignment(SwingConstants.LEFT);
@@ -1135,11 +1139,11 @@ public class MainFrame extends JFrame {
         panel_6.setLayout(null);
         panel_6.setBackground(Color.WHITE);
         tabbedPane.addTab("New tab", null, panel_6, null);
-        lblUnlockCard = new JLabel("Sblocco Carta");
-        lblUnlockCard.setHorizontalAlignment(SwingConstants.CENTER);
-        lblUnlockCard.setFont(new Font("Dialog", Font.BOLD, 30));
-        lblUnlockCard.setBounds(147, 36, 299, 36);
-        panel_6.add(lblUnlockCard);
+        lblUnlockCard1 = new JLabel("Sblocco Carta");
+        lblUnlockCard1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblUnlockCard1.setFont(new Font("Dialog", Font.BOLD, 30));
+        lblUnlockCard1.setBounds(147, 36, 299, 36);
+        panel_6.add(lblUnlockCard1);
         txtpnUseYourPUK = new JTextPane();
         txtpnUseYourPUK.setText("Utilizza il codice PUK ricevuto con la CIE");
         txtpnUseYourPUK.setFont(new Font("Dialog", Font.PLAIN, 16));
@@ -1163,7 +1167,7 @@ public class MainFrame extends JFrame {
         });
         btnUnlockPIN.setForeground(Color.WHITE);
         btnUnlockPIN.setBackground(new Color(30, 144, 255));
-        btnUnlockPIN.setBounds(206, 507, 114, 25);
+        btnUnlockPIN.setBounds(223, 507, 114, 25);
         panel_6.add(btnUnlockPIN);
         lblInsertYourPUK = new JLabel("Inserisci il PUK");
         lblInsertYourPUK.setHorizontalAlignment(SwingConstants.LEFT);
@@ -1223,11 +1227,11 @@ public class MainFrame extends JFrame {
         panel_7.setLayout(null);
         panel_7.setBackground(Color.WHITE);
         tabbedPane.addTab("New tab", null, panel_7, null);
-        lblUnlockCard = new JLabel("Sblocca Carta");
-        lblUnlockCard.setHorizontalAlignment(SwingConstants.CENTER);
-        lblUnlockCard.setFont(new Font("Dialog", Font.BOLD, 30));
-        lblUnlockCard.setBounds(147, 36, 299, 36);
-        panel_7.add(lblUnlockCard);
+        lblUnlockCard2 = new JLabel("Sblocca Carta");
+        lblUnlockCard2.setHorizontalAlignment(SwingConstants.CENTER);
+        lblUnlockCard2.setFont(new Font("Dialog", Font.BOLD, 30));
+        lblUnlockCard2.setBounds(147, 36, 299, 36);
+        panel_7.add(lblUnlockCard2);
         txtpnTypeThePUKOfYourCIE = new JTextPane();
         txtpnTypeThePUKOfYourCIE.setText("Utilizza il codice PUK ricevuto con la CIE");
         txtpnTypeThePUKOfYourCIE.setFont(new Font("Dialog", Font.PLAIN, 16));
@@ -1261,7 +1265,7 @@ public class MainFrame extends JFrame {
         lblHelp.setBounds(147, 36, 299, 36);
         panel_8.add(lblHelp);
         MiniWebView webView = new MiniWebView();
-        webView.setBounds(12, 99, 571, 362);
+        webView.setBounds(12, 99, 574, 438);
         panel_8.add(webView);
         webView.showPage(MainFrame.class.getResource("/it/ipzs/cieid/res/tutorial_linux.html"));
         panel_9 = new JPanel();
@@ -1274,7 +1278,7 @@ public class MainFrame extends JFrame {
         label_11.setBounds(147, 36, 299, 36);
         panel_9.add(label_11);
         miniWebView = new MiniWebView();
-        miniWebView.setBounds(12, 99, 571, 362);
+        miniWebView.setBounds(12, 99, 574, 438);
         panel_9.add(miniWebView);
         miniWebView.showPage("https://idserver.servizicie.interno.gov.it/idp/aiuto.jsp");
         panel_10 = new JPanel();
@@ -1287,7 +1291,7 @@ public class MainFrame extends JFrame {
         lblInformation.setBounds(147, 36, 299, 36);
         panel_10.add(lblInformation);
         miniWebView_1 = new MiniWebView();
-        miniWebView_1.setBounds(12, 99, 571, 362);
+        miniWebView_1.setBounds(12, 99, 574, 438);
         panel_10.add(miniWebView_1);
         miniWebView_1.showPage("https://idserver.servizicie.interno.gov.it/idp/privacy.jsp");
         StyledDocument doc = textPane_1.getStyledDocument();
@@ -1314,7 +1318,7 @@ public class MainFrame extends JFrame {
         lblDigitalSignature = new JLabel("Firma Elettronica");
         lblDigitalSignature.setHorizontalAlignment(SwingConstants.CENTER);
         lblDigitalSignature.setFont(new Font("Dialog", Font.BOLD, 30));
-        lblDigitalSignature.setBounds(165, 45, 302, 39);
+        lblDigitalSignature.setBounds(147, 45, 302, 39);
         selectFile.add(lblDigitalSignature);
         panel_24 = new JPanel();
         panel_24.setBackground(SystemColor.text);
@@ -1323,7 +1327,7 @@ public class MainFrame extends JFrame {
         panel_24.setLayout(null);
         panelLoadFile = new JPanel();
         panelLoadFile.setBackground(SystemColor.text);
-        panelLoadFile.setBounds(12, 12, 513, 300);
+        panelLoadFile.setBounds(12, 12, 516, 300);
         panel_24.add(panelLoadFile);
         panelLoadFile.setLayout(null);
         panelLoadFile.setBorder(BorderFactory.createDashedBorder(null, 5, 5));
@@ -1417,7 +1421,7 @@ public class MainFrame extends JFrame {
 
                     signImage = ImageIO.read(new File(signImagePath));
                     ImageIcon imageIcon = new ImageIcon();
-                    imageIcon.setImage(signImage.getScaledInstance(lblCustomizedGraphicSignature.getWidth(), lblCustomizedGraphicSignature.getHeight(), Image.SCALE_SMOOTH));
+                    imageIcon.setImage(signImage.getScaledInstance(lblCustomizedGraphicSignature.getWidth(), -1, Image.SCALE_SMOOTH));
                     lblCustomizedGraphicSignature.setIcon(imageIcon);
                     tabbedPane.setSelectedIndex(15);
 
@@ -1463,7 +1467,7 @@ public class MainFrame extends JFrame {
         selectOperation.add(lblFirmaElettronica_1);
         panel_16 = new JPanel();
         panel_16.setBackground(SystemColor.text);
-        panel_16.setBounds(76, 132, 449, 415);
+        panel_16.setBounds(76, 132, 449, 375);
         selectOperation.add(panel_16);
         panel_16.setLayout(null);
         panel = new JPanel();
@@ -1636,8 +1640,8 @@ public class MainFrame extends JFrame {
                 tabbedPane.setSelectedIndex(10);
             }
         });
-        btnCancelOp.setBounds(147, 392, 136, 23);
-        panel_16.add(btnCancelOp);
+        btnCancelOp.setBounds(223, 507, 136, 23);
+        selectOperation.add(btnCancelOp);
         btnCancelOp.setForeground(Color.WHITE);
         btnCancelOp.setBackground(new Color(30, 144, 255));
         selectSignatureOperation = new JPanel();
@@ -1651,7 +1655,7 @@ public class MainFrame extends JFrame {
         selectSignatureOperation.add(lblFirmaElettronica_2);
         panel_23 = new JPanel();
         panel_23.setBackground(SystemColor.text);
-        panel_23.setBounds(76, 132, 449, 415);
+        panel_23.setBounds(76, 132, 449, 375);
         selectSignatureOperation.add(panel_23);
         panel_23.setLayout(null);
         panel_15 = new JPanel();
@@ -1675,7 +1679,7 @@ public class MainFrame extends JFrame {
         panel_15.add(lblPathSignOp);
         panel_20 = new JPanel();
         panel_20.setBackground(SystemColor.text);
-        panel_20.setBounds(0, 120, 448, 249);
+        panel_20.setBounds(0, 70, 448, 249);
         panel_23.add(panel_20);
         panel_20.setLayout(null);
         JLabel lblNewLabel_8_1 = new JLabel("Seleziona il tipo di firma");
@@ -1784,8 +1788,8 @@ public class MainFrame extends JFrame {
         panel_19.add(cbGraphicSig);
         JPanel panel_17 = new JPanel();
         panel_17.setBackground(SystemColor.text);
-        panel_17.setBounds(48, 392, 359, 23);
-        panel_23.add(panel_17);
+        panel_17.setBounds(124, 507, 359, 23);
+        selectSignatureOperation.add(panel_17);
         panel_17.setLayout(null);
         JButton btnAnnullaOp_1 = new JButton("Annulla");
         btnAnnullaOp_1.addActionListener(new ActionListener() {
@@ -1880,7 +1884,7 @@ public class MainFrame extends JFrame {
         pdfPreview.add(lblFirmaElettronica_3);
         panel_25 = new JPanel();
         panel_25.setBackground(SystemColor.text);
-        panel_25.setBounds(76, 132, 449, 415);
+        panel_25.setBounds(76, 132, 449, 375);
         pdfPreview.add(panel_25);
         panel_25.setLayout(null);
         panel_21 = new JPanel();
@@ -1917,14 +1921,14 @@ public class MainFrame extends JFrame {
                 lblPathPin.setText(filePath);
             }
         });
-        btnAnnullaOp_3.setBounds(147, 392, 136, 23);
-        panel_25.add(btnAnnullaOp_3);
+        btnAnnullaOp_3.setBounds(223, 507, 136, 23);
+        pdfPreview.add(btnAnnullaOp_3);
         btnAnnullaOp_3.setForeground(Color.WHITE);
         btnAnnullaOp_3.setBackground(new Color(30, 144, 255));
         panelPdfPreview = new JPanel();
         panelPdfPreview.setBorder(null);
         panelPdfPreview.setBackground(SystemColor.control);
-        panelPdfPreview.setBounds(10, 94, 377, 286);
+        panelPdfPreview.setBounds(10, 104, 377, 246);
         panel_25.add(panelPdfPreview);
         GridBagLayout gbl_panelPdfPreview = new GridBagLayout();
         gbl_panelPdfPreview.columnWidths = new int[] {0};
@@ -1934,7 +1938,7 @@ public class MainFrame extends JFrame {
         panelPdfPreview.setLayout(gbl_panelPdfPreview);
         panel_22 = new JPanel();
         panel_22.setBackground(SystemColor.text);
-        panel_22.setBounds(397, 153, 42, 172);
+        panel_22.setBounds(397, 143, 42, 172);
         panel_25.add(panel_22);
         panel_22.setLayout(null);
         btnUp = new JButton("");
@@ -1981,7 +1985,7 @@ public class MainFrame extends JFrame {
         panel_26 = new JPanel();
         panel_26.setLayout(null);
         panel_26.setBackground(Color.WHITE);
-        panel_26.setBounds(76, 132, 449, 415);
+        panel_26.setBounds(76, 132, 449, 375);
         firmaPin.add(panel_26);
         panel_27 = new JPanel();
         panel_27.setLayout(null);
@@ -2004,8 +2008,8 @@ public class MainFrame extends JFrame {
         panel_27.add(lblPathPin);
         panel_28 = new JPanel();
         panel_28.setBackground(SystemColor.text);
-        panel_28.setBounds(48, 392, 360, 23);
-        panel_26.add(panel_28);
+        panel_28.setBounds(124, 507, 360, 23);
+        firmaPin.add(panel_28);
         panel_28.setLayout(null);
         btnUndoPINTyping = new JButton("Annulla");
         btnUndoPINTyping.addMouseListener(new MouseAdapter() {
@@ -2290,13 +2294,13 @@ public class MainFrame extends JFrame {
         customizeGraphicSignature.add(lblFirmaElettronica_5);
         JPanel panel_30 = new JPanel();
         panel_30.setBackground(Color.WHITE);
-        panel_30.setBounds(76, 132, 449, 415);
+        panel_30.setBounds(76, 132, 449, 375);
         customizeGraphicSignature.add(panel_30);
         panel_30.setLayout(null);
         panel_31 = new JPanel();
         panel_31.setBackground(Color.WHITE);
-        panel_31.setBounds(0, 392, 449, 23);
-        panel_30.add(panel_31);
+        panel_31.setBounds(76, 507, 449, 23);
+        customizeGraphicSignature.add(panel_31);
         panel_31.setLayout(null);
         JButton btnSelectImg = new JButton("Seleziona un file");
         btnSelectImg.addActionListener(new ActionListener() {
@@ -2317,7 +2321,7 @@ public class MainFrame extends JFrame {
                         FileUtils.copyFile(new File(source), new File(dest));
                         Image signImage = ImageIO.read(new File(dest));
                         ImageIcon imageIcon = new ImageIcon();
-                        imageIcon.setImage(signImage.getScaledInstance(lblCustomizedGraphicSignature.getWidth(), lblCustomizedGraphicSignature.getHeight(), Image.SCALE_SMOOTH));
+                        imageIcon.setImage(signImage.getScaledInstance(lblCustomizedGraphicSignature.getWidth(), -1, Image.SCALE_SMOOTH));
                         lblCustomizedGraphicSignature.setIcon(imageIcon);
                         lblCustomize.setText("Aggiorna");
                         lblHint.setText("Una tua firma personalizzata è già stata caricata. Vuoi aggiornarla?");
@@ -2369,7 +2373,7 @@ public class MainFrame extends JFrame {
 
                     signImage = ImageIO.read(new File(signImagePath));
                     ImageIcon imageIcon = new ImageIcon();
-                    imageIcon.setImage(signImage.getScaledInstance(lblCustomizedGraphicSignature.getWidth(), lblCustomizedGraphicSignature.getHeight(), Image.SCALE_SMOOTH));
+                    imageIcon.setImage(signImage.getScaledInstance(lblCustomizedGraphicSignature.getWidth(), -1, Image.SCALE_SMOOTH));
                     lblCustomizedGraphicSignature.setIcon(imageIcon);
                     selectedCie.getCard().setIsCustomSign(false);
                     cieDictionary.put(selectedCie.getCard().getPan(), selectedCie.getCard());
@@ -2395,7 +2399,7 @@ public class MainFrame extends JFrame {
         panel_31.add(btnGenerateGraphicSignature);
         lblHint = new JTextArea();
         lblHint.setHighlighter(null);
-        lblHint.setBounds(0, 133, 449, 80);
+        lblHint.setBounds(0, 224, 449, 60);
         panel_30.add(lblHint);
         lblHint.setWrapStyleWord(true);
         lblHint.setText("Abbiamo creato per te una firma grafica, ma se preferisci puoi personalizzarla. Questo passaggio non \u00E8 indispensabile, ma ti consentir\u00E0 di dare un tocco personale ai documenti firmati.");
@@ -2406,17 +2410,17 @@ public class MainFrame extends JFrame {
         lblHint.setBackground(Color.WHITE);
         JTextArea txtrAbbiamoCreatoPer_1_1 = new JTextArea();
         txtrAbbiamoCreatoPer_1_1.setHighlighter(null);
-        txtrAbbiamoCreatoPer_1_1.setBounds(0, 280, 449, 72);
+        txtrAbbiamoCreatoPer_1_1.setBounds(0, 284, 449, 133);
         panel_30.add(txtrAbbiamoCreatoPer_1_1);
         txtrAbbiamoCreatoPer_1_1.setWrapStyleWord(true);
-        txtrAbbiamoCreatoPer_1_1.setText("Puoi caricare un file in formato PNG, se non hai un file contenente una firma grafica puoi realizzarne uno utilizzando l'app CieSign disponibile per smartphone iOS o Android");
+        txtrAbbiamoCreatoPer_1_1.setText("Puoi caricare un file in formato PNG, se non hai un file contenente una firma grafica puoi realizzarne uno utilizzando l'app CieSign disponibile per smartphone iOS o Android.\nSi consiglia di utilizzare un'immagine con rapporto 2:1");
         txtrAbbiamoCreatoPer_1_1.setRows(3);
         txtrAbbiamoCreatoPer_1_1.setLineWrap(true);
         txtrAbbiamoCreatoPer_1_1.setFont(new Font("Dialog", Font.PLAIN, 15));
         txtrAbbiamoCreatoPer_1_1.setEditable(false);
         txtrAbbiamoCreatoPer_1_1.setBackground(Color.WHITE);
         lblCustomizedGraphicSignature = new JLabel("");
-        lblCustomizedGraphicSignature.setBounds(0, 0, 449, 93);
+        lblCustomizedGraphicSignature.setBounds(40, 0, 368, 184);
         panel_30.add(lblCustomizedGraphicSignature);
         pnVerify = new JPanel();
         pnVerify.setLayout(null);
@@ -2429,13 +2433,14 @@ public class MainFrame extends JFrame {
         pnVerify.add(lblFirmaElettronica_6);
         panel_32 = new JPanel();
         panel_32.setBackground(Color.WHITE);
-        panel_32.setBounds(76, 132, 449, 415);
+        panel_32.setBounds(76, 132, 449, 375);
         pnVerify.add(panel_32);
         panel_32.setLayout(null);
         verifyScrollPane = new JScrollPane();
-        verifyScrollPane.setBounds(26, 110, 396, 259);
+        verifyScrollPane.setBounds(26, 120, 396, 219);
         verifyScrollPane.setBorder(BorderFactory.createEmptyBorder());
         verifyScrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
+        verifyScrollPane.getViewport().setBackground(Color.WHITE);
         panel_32.add(verifyScrollPane);
         JPanel panel_27_1 = new JPanel();
         panel_27_1.setBounds(0, 0, 449, 82);
@@ -2465,8 +2470,8 @@ public class MainFrame extends JFrame {
         });
         btnConcludiVerifica.setForeground(Color.WHITE);
         btnConcludiVerifica.setBackground(new Color(30, 144, 255));
-        btnConcludiVerifica.setBounds(257, 392, 136, 23);
-        panel_32.add(btnConcludiVerifica);
+        btnConcludiVerifica.setBounds(333, 507, 136, 23);
+        pnVerify.add(btnConcludiVerifica);
         btnExtractP7M = new JButton("Estrai");
         btnExtractP7M.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
@@ -2515,8 +2520,8 @@ public class MainFrame extends JFrame {
         });
         btnExtractP7M.setForeground(Color.WHITE);
         btnExtractP7M.setBackground(new Color(30, 144, 255));
-        btnExtractP7M.setBounds(57, 391, 136, 23);
-        panel_32.add(btnExtractP7M);
+        btnExtractP7M.setBounds(133, 507, 136, 23);
+        pnVerify.add(btnExtractP7M);
         JLabel lblNewLabel_13 = new JLabel("Verifica firma elettronica");
         lblNewLabel_13.setFont(new Font("Dialog", Font.BOLD, 17));
         lblNewLabel_13.setBounds(190, 82, 246, 15);
@@ -2527,7 +2532,7 @@ public class MainFrame extends JFrame {
         pnSettings.setLayout(null);
         JTabbedPane configTabbedPane = new JTabbedPane(JTabbedPane.TOP);
         configTabbedPane.setBackground(Color.WHITE);
-        configTabbedPane.setBounds(12, 12, 571, 500);
+        configTabbedPane.setBounds(12, 12, 574, 500);
         pnSettings.add(configTabbedPane);
         JPanel configProxyPanel = new JPanel();
         configProxyPanel.setBackground(Color.WHITE);
@@ -2616,7 +2621,7 @@ public class MainFrame extends JFrame {
         lblConfigLoggingCaption.setFont(new Font("Dialog", Font.BOLD, 15));
         configLoggingPanel.add(lblConfigLoggingCaption);
         JPanel configLoggingBodyPanel = new JPanel();
-        configLoggingBodyPanel.setBounds(37, 109, 500, 331);
+        configLoggingBodyPanel.setBounds(37, 89, 500, 331);
         configLoggingBodyPanel.setLayout(null);
         configLoggingBodyPanel.setBackground(Color.WHITE);
         configLoggingPanel.add(configLoggingBodyPanel);
@@ -2828,7 +2833,200 @@ public class MainFrame extends JFrame {
         } else {
             selectHome();
         }
-        
+
+        class ComponentResizer {
+            public void resizeComponents() {
+                int width = getWidth();
+                int height = getHeight();
+
+                // Helper class to calculate the correct centerd position
+                class Relocator {
+                    int x(int x) {
+                        return ((width - 200) / 2) - (300 - x);
+                    }
+
+                    int y(int y) {
+                        return (height / 2) - (300 - y);
+                    }
+                }
+
+                Relocator r = new Relocator();
+
+                // Make leftPanel full height
+                leftPanel.setSize(200, height);
+                // Make tabbedPane full height and full width
+                tabbedPane.setSize(width - 197, height + 69);
+
+                lblPairYourCIE.setLocation(r.x(147), lblPairYourCIE.getY());
+                txtpnConnectAndPlaceYourCIEOnTheReader.setLocation(r.x(63), txtpnConnectAndPlaceYourCIEOnTheReader.getY());
+                lblNewLabel1.setLocation(r.x(29), r.y(194));
+                passwordField.setLocation(r.x(250), r.y(321));
+                passwordField_1.setLocation(r.x(287), r.y(321));
+                passwordField_2.setLocation(r.x(324), r.y(321));
+                passwordField_3.setLocation(r.x(362), r.y(321));
+                passwordField_4.setLocation(r.x(399), r.y(321));
+                passwordField_5.setLocation(r.x(436), r.y(321));
+                passwordField_6.setLocation(r.x(473), r.y(321));
+                passwordField_7.setLocation(r.x(510), r.y(321));
+                lblTypeYourCIEPIN.setLocation(r.x(252), r.y(259));
+                buttonsPanel.setLocation(r.x(133), height - 93);
+                label.setLocation(r.x(147), label.getY());
+                /* 0 */
+                textPane_1.setLocation(r.x(63), textPane_1.getY());
+                label_1.setLocation(r.x(29), r.y(194));
+                checkBox.setLocation(width, checkBox.getY()); // This is hidden
+                lblProgress.setLocation(r.x(252), r.y(259));
+                progressBar.setLocation(r.x(258), r.y(324));
+                /* 1 */
+                cieCarousel.setLocation(cieCarousel.getX(), r.y(170));
+                cieCarousel.cieRight.setLocation(r.x(408), cieCarousel.cieRight.getY());
+                cieCarousel.cieCenter.setLocation(r.x(190), cieCarousel.cieCenter.getY());
+                cieCarousel.cieLeft.setLocation(r.x(38), cieCarousel.cieLeft.getY());
+                cieCarousel.radioButtonPanel.setLocation(r.x(55), cieCarousel.radioButtonPanel.getY());
+                cieCarousel.setSize(width - 205, height / 2);
+                cieCarousel.btnRight.setLocation(width - 252, cieCarousel.btnRight.getY());
+                btnPanel.setBounds(btnPanel.getX(), height - 93, width - 205, btnPanel.getHeight());
+                lblCieId.setLocation(r.x(147), lblCieId.getY());
+                txtpnCIEPanelsSubtitle.setLocation(r.x(50), txtpnCIEPanelsSubtitle.getY());
+                /* 2 */
+                lblChangePIN.setLocation(r.x(147), lblChangePIN.getY());
+                txtpnThePINOfYourCard.setLocation(r.x(147), txtpnThePINOfYourCard.getY());
+                label_5.setLocation(r.x(29), r.y(194));
+                checkBox_2.setLocation(width, checkBox_2.getY()); // This is hidden
+                btnPerformChangePIN.setLocation(r.x(223), height - 93);
+                lblTypeTheOldValue.setLocation(r.x(252), r.y(201));
+                oldPIN.setLocation(r.x(252), r.y(230));
+                lblTypeTheNewValue.setLocation(r.x(252), r.y(266));
+                newPIN.setLocation(r.x(252), r.y(295));
+                lblTypeAgainTheNewValue.setLocation(r.x(252), r.y(332));
+                repeatNewPIN.setLocation(r.x(252), r.y(361));
+                txtpnThePINOfYourCIEMustContainEightDigits.setLocation(r.x(262), r.y(398));
+                /* 3 */
+                lblChangePINText.setLocation(r.x(147), lblChangePINText.getY());
+                txtpnThePINOfYourCIE.setLocation(r.x(147), txtpnThePINOfYourCIE.getY());
+                label_6.setLocation(r.x(29), r.y(194));
+                checkBox_3.setLocation(width, checkBox_3.getY()); // This is hidden
+                labelProgressChangePIN.setLocation(r.x(252), r.y(259));
+                progressBarChangePIN.setLocation(r.x(258), r.y(324));
+                /* 4 */
+                lblUnlockCard1.setLocation(r.x(147), lblUnlockCard1.getY());
+                label_7.setLocation(r.x(29), r.y(194));
+                txtpnUseYourPUK.setLocation(r.x(126), txtpnUseYourPUK.getY());
+                checkBox_4.setLocation(width, checkBox_4.getY()); // This is hidden
+                btnUnlockPIN.setLocation(r.x(223), height - 93);
+                lblInsertYourPUK.setLocation(r.x(252), r.y(201));
+                puk01.setLocation(r.x(252), r.y(230));
+                label_9.setLocation(r.x(252), r.y(266));
+                pin01.setLocation(r.x(252), r.y(295));
+                label_10.setLocation(r.x(252), r.y(332));
+                pin02.setLocation(r.x(252), r.y(361));
+                textPane_2.setLocation(r.x(262), r.y(398));
+                lblUnlockCard2.setLocation(r.x(147), lblUnlockCard2.getY());
+                txtpnTypeThePUKOfYourCIE.setLocation(r.x(132), txtpnTypeThePUKOfYourCIE.getY());
+                /* 5 */
+                label_8.setLocation(r.x(29), r.y(194));
+                checkBox_5.setLocation(width, checkBox_5.getY()); // This is hidden
+                labelProgressUnlock.setLocation(r.x(252), r.y(259));
+                progressBarUnlock.setLocation(r.x(258), r.y(324));
+                lblHelp.setLocation(r.x(147), lblHelp.getY());
+                webView.setSize(width - 226, height - 162);
+                label_11.setLocation(r.x(147), label_11.getY());
+                miniWebView.setSize(width - 226, height - 162);
+                lblInformation.setLocation(r.x(147), lblInformation.getY());
+                miniWebView_1.setSize(width - 226, height - 162);
+                /* 6,7,8,9 */
+                lblDigitalSignature.setLocation(r.x(147), lblDigitalSignature.getY());
+                panel_24.setSize(width - 260, height - 199);
+                panelLoadFile.setSize(width - 284, height - 300);
+                lblNewLabel.setLocation(r.x(223), r.y(12));
+                txtrDragAndDropDocuments.setLocation(r.x(70), r.y(141));
+                txtrOtherwise.setLocation(r.x(239), r.y(212));
+                btnSelectDocument.setLocation(r.x(161), r.y(265));
+                panel_11.setBounds(panel_11.getX(), height - 264, width - 240, panel_11.getHeight());
+                lblSFP.setSize(width - 454, lblSFP.getHeight());
+                lblCustomize.setLocation(width - 367, lblCustomize.getY());
+                lblFPOK.setSize(width - 354, lblFPOK.getHeight());
+                lblFirmaElettronica_1.setLocation(r.x(165), lblFirmaElettronica_1.getY());
+                /* 10 */
+                panel_16.setSize(width - 351, height - 225);
+                panel.setSize(width - 351, panel.getHeight());
+                lblPathOp.setSize(width - 421, lblPathOp.getHeight());
+                panel_12.setLocation(r.x(102), r.y(121));
+                btnCancelOp.setLocation(r.x(223), height - 93);
+				/* 11 */
+                lblFirmaElettronica_2.setLocation(r.x(165), lblFirmaElettronica_2.getY());
+                panel_23.setSize(width - 351, height - 225);
+                panel_15.setSize(width - 352, panel_15.getHeight());
+                lblPathSignOp.setSize(width - 421, lblPathSignOp.getHeight());
+                panel_20.setBounds(panel_20.getX(), r.y(70), width - 352, panel_20.getHeight());
+                lblNewLabel_8_1.setLocation(r.x(129), lblNewLabel_8_1.getY());
+                panel_18.setLocation(r.x(0), panel_18.getY());
+                panel_19.setLocation(r.x(250), panel_19.getY());
+                panel_17.setLocation(r.x(124), height - 93);
+                lblNewLabel_8.setLocation(r.x(237), lblNewLabel_8.getY());
+                /* 12 */
+                lblFirmaElettronica_3.setLocation(r.x(149), lblFirmaElettronica_3.getY());
+                panel_25.setSize(width - 351, height - 225);
+                panel_21.setSize(width - 352, panel_21.getHeight());
+                lblPathPreview.setSize(width - 421, lblPathPreview.getHeight());
+                panelPdfPreview.setSize(width - 423, height - 354);
+                if (signOperation == signOperation.PADES) {
+                    preview.showPreview();
+                }
+                panel_22.setLocation(width - 403, r.y(143));
+                btnAnnullaOp_3.setLocation(r.x(223), height - 93);
+                lblNewLabel_10.setLocation(r.x(35), lblNewLabel_10.getY());
+                /* 13 */
+                lblFirmaElettronica_4.setLocation(r.x(165), lblFirmaElettronica_4.getY());
+                panel_26.setSize(width - 351, height - 225);
+                panel_27.setSize(width - 352, panel_27.getHeight());
+                lblPathPin.setSize(width - 421, lblPathPin.getHeight());
+                panel_28.setLocation(r.x(124), height - 93);
+                panel_29.setLocation(r.x(0), r.y(153));
+                lblNewLabel_12.setLocation(r.x(185), lblNewLabel_12.getY());
+                /* 14 */
+                lblFirmaElettronica_5.setLocation(r.x(149), lblFirmaElettronica_5.getY());
+                lblHint.setSize(width - 351, lblHint.getHeight());
+                txtrAbbiamoCreatoPer_1_1.setSize(width - 351, txtrAbbiamoCreatoPer_1_1.getHeight());
+                lblCustomizedGraphicSignature.setLocation(r.x(40), lblCustomizedGraphicSignature.getY());
+                panel_30.setSize(width - 351, height - 225);
+                panel_31.setBounds(r.x(76), height - 93, width - 351, panel_31.getHeight());
+                /* 15 */
+                lblFirmaElettronica_6.setLocation(r.x(149), lblFirmaElettronica_6.getY());
+                panel_32.setSize(width - 351, height - 225);
+                verifyScrollPane.setSize(width - 404, height - 381);
+                panel_27_1.setSize(width - 351, panel_27_1.getHeight());
+                lblPathVerifica.setSize(width - 421, lblPathVerifica.getHeight());
+                btnConcludiVerifica.setLocation(r.x(333), height - 93);
+                btnExtractP7M.setLocation(r.x(133), height - 93);
+                lblNewLabel_13.setLocation(r.x(190), lblNewLabel_13.getY());
+                /* 16 */
+                configTabbedPane.setSize(width - 226, height - 100);
+                lblConfigProxyTitle.setLocation(r.x(67), lblConfigProxyTitle.getY());
+                lblConfigProxyCaption.setLocation(r.x(53), lblConfigProxyCaption.getY());
+                configProxyBodyPanel.setLocation(r.x(37), configProxyBodyPanel.getY());
+                lblConfigLoggingTitle.setLocation(r.x(73), lblConfigLoggingTitle.getY());
+                lblConfigLoggingCaption.setLocation(r.x(69), lblConfigLoggingCaption.getY());
+                configLoggingBodyPanel.setLocation(r.x(37), configLoggingBodyPanel.getY());
+                configButtonsPanel.setLocation(r.x(0), height - 76);
+                lblConfigPreferencesTitle.setLocation(r.x(72), lblConfigPreferencesTitle.getY());
+                lblConfigPreferencesCaption.setLocation(r.x(40), lblConfigPreferencesCaption.getY());
+                lblConfigPreferencesCaption_1.setLocation(r.x(45), lblConfigPreferencesCaption_1.getY());
+                cboxShowTutorial.setLocation(r.x(94), cboxShowTutorial.getY());
+                btnDeleteLogs.setLocation(r.x(292), btnDeleteLogs.getY());
+                btnCollectLogs.setLocation(r.x(47), btnCollectLogs.getY());
+                /* 17 */
+            }
+        }
+
+        // Listen for resizes
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                new ComponentResizer().resizeComponents();
+            };
+        });
+
         System.out.println("tabbedPanel: " + tabbedPane);
     }
     

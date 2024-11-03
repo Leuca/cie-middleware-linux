@@ -2,6 +2,8 @@ package it.ipzs.cieid;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -152,8 +154,14 @@ public class IntroFrame extends JFrame {
 					Utils.setProperty("nomore", "true");
 				
 				// TODO open main frame
-				JFrame frame = new MainFrame(new String[] { });			
+				JFrame frame = new MainFrame(new String[] { });
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosed(WindowEvent e) {
+						System.exit(0);
+					}
+				});
 				
 				setVisible(false);
 				frame.setVisible(true);
