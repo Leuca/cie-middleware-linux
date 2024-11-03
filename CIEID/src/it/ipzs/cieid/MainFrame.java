@@ -429,6 +429,16 @@ public class MainFrame extends JFrame {
         contentPane.add(leftPanel);
         leftPanel.setLayout(null);
         JLabel label_2 = new JLabel("");
+        try
+        {
+            Image logoCircle = ImageIO.read(MainFrame.class.getResource("/it/ipzs/cieid/res/logo_circle.png"));
+            setIconImage(logoCircle);
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+        setTitle("CIE ID");
 
         try {
             label_2.setIcon(new ImageIcon(Utils.scaleimage(80, 80, ImageIO.read(MainFrame.class.getResource("/it/ipzs/cieid/res/Logo_Cie_ID_Windowed@2x.png")))));
