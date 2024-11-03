@@ -2,6 +2,7 @@ package it.ipzs.cieid;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -59,6 +60,16 @@ public class IntroFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public IntroFrame() {
+		try
+		{
+			Image logoCircle = ImageIO.read(MainFrame.class.getResource("/it/ipzs/cieid/res/logo_circle.png"));
+			setIconImage(logoCircle);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		setTitle("Benvenuto in CIE ID");
 		setResizable(false);
 		setBackground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
