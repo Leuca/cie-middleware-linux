@@ -2000,7 +2000,7 @@ long sign_pdf(DISIGON_SIGN_CONTEXT* pContext, UUCByteArray& data)
 
     pContext->pSignatureGenerator->SetHashAlgo(pContext->nHashAlgo);
 
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
     UUCByteArray buffer;
     sigGen.GetBufferForSignature(buffer);
 

@@ -42,7 +42,7 @@ int PDFVerifier::Load(const char* pdf, int len)
 	try
 	{
 		m_pPdfDocument = new PdfMemDocument();
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 		m_pPdfDocument->LoadFromBuffer(pdf, len, true);
 #else
 		m_pPdfDocument->LoadFromBuffer(bufferview(pdf, len));
@@ -70,7 +70,7 @@ int PDFVerifier::Load(const char* szFilePath)
     try
     {
         m_pPdfDocument = new PdfMemDocument();
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
         m_pPdfDocument->Load(szFilePath, false);
 #else
         m_pPdfDocument->Load(szFilePath);
@@ -117,7 +117,7 @@ int PDFVerifier::GetNumberOfSignatures(const char* szFilePath)
     
     try {
         
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
         doc.Load(szFilePath, false);
 #else
         doc.Load(szFilePath);
@@ -141,7 +141,7 @@ int PDFVerifier::GetNumberOfSignatures(const char* szFilePath)
 int PDFVerifier::GetNumberOfSignatures(PdfMemDocument* pPdfDocument)
 {
 	/// Find the document catalog dictionary
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	const PdfObject *const trailer = pPdfDocument->GetTrailer();
 	if (!trailer->IsDictionary())
 		return -1;
@@ -231,7 +231,7 @@ int PDFVerifier::VerifySignature(int index, const char* szDate, char* signatureT
 		return -1;
 	
 	/// Find the document catalog dictionary
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	const PdfObject *const trailer = m_pPdfDocument->GetTrailer();
 	if (!trailer->IsDictionary())
 		return -1;
@@ -311,7 +311,7 @@ int PDFVerifier::VerifySignature(const PdfMemDocument* pDoc, const PdfObject *co
 	if (keyFTValue == 0) 
 		return -2;
 	
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	string value;
 	keyFTValue->ToString(value);
 	if (value != "/Sig") 
@@ -452,7 +452,7 @@ bool PDFVerifier::IsSignatureField(const PdfMemDocument* pDoc, const PdfObject *
 	if (keyFTValue == 0) 
 		return false;
 	
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	string value;
 	keyFTValue->ToString(value);
 	if (value != "/Sig") 
@@ -480,7 +480,7 @@ int PDFVerifier::GetSignature(int index, UUCByteArray& signedDocument, Signature
 		return -1;
 	
 	/// Find the document catalog dictionary
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	const PdfObject *const trailer = m_pPdfDocument->GetTrailer();
 	if (!trailer->IsDictionary())
 		return -1;
@@ -557,7 +557,7 @@ int PDFVerifier::GetSignature(const PdfMemDocument* pDoc, const PdfObject *const
 	if (keyFTValue == 0) 
 		return -2;
 	
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	string value;
 	keyFTValue->ToString(value);
 	if (value != "/Sig") 
@@ -579,7 +579,7 @@ int PDFVerifier::GetSignature(const PdfMemDocument* pDoc, const PdfObject *const
 	}
 	
 	PdfArray rectArray = keyRect->GetArray();
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	PdfRect rect;
 #else
 	Rect rect;
@@ -588,7 +588,7 @@ int PDFVerifier::GetSignature(const PdfMemDocument* pDoc, const PdfObject *const
 	
 	appearanceInfo.left = rect.GetLeft();
 	appearanceInfo.bottom = rect.GetBottom();
-#if PODOFO_VERSION_MINOR < 10
+#if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 	appearanceInfo.width = rect.GetWidth();
 	appearanceInfo.heigth = rect.GetHeight();
 #else
