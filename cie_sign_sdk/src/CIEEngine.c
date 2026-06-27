@@ -3,10 +3,46 @@
 //  CIESDK
 //
 //  Created by ugo chirico on 26.02.2020.
+//  Updated 2026: OpenSSL 3.x — the ENGINE code is replaced by the
+//                 CIEProvider (see CIEProvider.c / CIEProvider.h).
+//
+//  When building against OpenSSL >= 3.0 the legacy ENGINE API is
+//  completely excluded and engine_load_cie() becomes a thin wrapper
+//  around provider_load_cie().
+//
+//  When building against OpenSSL < 3.0 the original ENGINE code is
+//  preserved unchanged.
 //
 
 #include <stdio.h>
 #include <string.h>
+#include <openssl/opensslv.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000
+/* ---- OpenSSL 3.x path: forward to the Provider ------------------- */
+
+# include "CIEEngine.h"
+# include "CIEProvider.h"
+
+const unsigned char* cie_certificate;
+unsigned long cie_certlen;
+unsigned char* cie_pin;
+unsigned long cie_pinlen;
+unsigned short cie_error;
+
+static OSSL_PROVIDER *g_cie_provider = NULL;
+
+void engine_load_cie(sign sign_cb)
+{
+    if (g_cie_provider != NULL)
+        provider_unload_cie(g_cie_provider);
+
+    g_cie_provider = provider_load_cie(sign_cb);
+}
+
+#else
+/* ---- OpenSSL < 3.0 path: original ENGINE code (unchanged) -------- */
+
 #include "CIEEngine.h"
 #include "CIEEngineHelper.h"
 #include <openssl/engine.h>
@@ -622,3 +658,5 @@ void engine_load_cie(sign sign_cb)
     ENGINE_free(toadd);
     ERR_clear_error();
 }
+
+#endif /* OPENSSL_VERSION_NUMBER < 0x30000000 */
