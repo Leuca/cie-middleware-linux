@@ -122,16 +122,20 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 
 	float cropBoxWidth = cropBox.GetWidth();
 	float cropBoxHeight = cropBox.GetHeight();
+	float cropBoxLeft = cropBox.GetLeft();
+	float cropBoxBottom = cropBox.GetBottom();
 #else
 	PdfPage* pPage = &m_pPdfDocument->GetPages().GetPageAt(pageIndex);
 	Rect cropBox = pPage->GetCropBox();
 
 	float cropBoxWidth = cropBox.Width;
 	float cropBoxHeight = cropBox.Height;
+	float cropBoxLeft = cropBox.X;
+	float cropBoxBottom = cropBox.Y;
 #endif
     
-	float left0 = left * cropBoxWidth;
-	float bottom0 = cropBoxHeight - (bottom * cropBoxHeight);
+	float left0 = cropBoxLeft + left * cropBoxWidth;
+	float bottom0 = cropBoxBottom + cropBoxHeight - (bottom * cropBoxHeight);
     
 	float width0 = width * cropBoxWidth;
 	float height0 = height * cropBoxHeight;
@@ -219,7 +223,13 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 #if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 		PdfXObject sigXObject(rect, m_pPdfDocument);
 #else
-		auto sigXObject = m_pPdfDocument->CreateXObjectForm(rect);
+		// The appearance form has its own coordinate space: a viewer maps its
+		// BBox onto the widget /Rect (set above). Anchor the BBox at the local
+		// origin and paint content relative to (0,0); the /Rect handles the page
+		// placement. Reusing the offset page rect here caused the offset to be
+		// applied twice, drifting the graphic proportionally to its distance from
+		// the page origin.
+		auto sigXObject = m_pPdfDocument->CreateXObjectForm(Rect(0, 0, width0, height0));
 #endif
 		PdfPainter painter;
 
@@ -284,7 +294,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 #if PODOFO_VERSION_MAJOR < 1 && PODOFO_VERSION_MINOR < 10
 			painter.DrawImage(left0, bottom0, &image, scale, scale);
 #else
-			painter.DrawImage(*image, left0, bottom0, scale, scale);
+			painter.DrawImage(*image, 0, 0, scale, scale);
 #endif
 
 			// Release buffer memory
@@ -361,7 +371,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 	}
 #else
 			PdfFont* font = m_pPdfDocument->GetFonts().SearchFont(FONT_NAME);
-			Rect sigRect = Rect(left0 + TXT_PAD, bottom0 - TXT_PAD, width0, height0);
+			Rect sigRect = Rect(TXT_PAD, TXT_PAD, width0 - 2 * TXT_PAD, height0 - 2 * TXT_PAD);
 			painter.TextState.SetFont(*font, FONT_SIZE);
 			painter.DrawTextMultiLine(signatureStamp, sigRect);
 
