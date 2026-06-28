@@ -1952,51 +1952,76 @@ long sign_pdf(DISIGON_SIGN_CONTEXT* pContext, UUCByteArray& data)
 
     LOG_DBG((0, "sign_pdf", "Context: %p, SigCount %d", pContext, nSigCount));
 
+    if (nSigCount < 0)
+    {
+        LOG_ERR((0, "sign_pdf", "Load failed: %d", nSigCount));
+        return DISIGON_ERROR_INVALID_FILE;
+    }
+
     string sigName = "Signature";
     sigName += ('1' + nSigCount);
 
     LOG_DBG((0, "sign_pdf", "Context: %p, InitSignature %d, %f, %f, %f, %f, %s, %s, %s, %s, %s, %s", pContext, pContext->nPdfPage, pContext->fPdfLeft, pContext->fPdfBottom, pContext->fPdfWidth, pContext->fPdfHeight, pContext->szPdfReason, pContext->szPdfName, pContext->szPdfLocation, sigName.c_str(), pContext->szPdfSubfilter, pContext->szPdfImagePath));
 
 
-    if(pContext->szPdfImagePath[0] != 0 || pContext->szPdfDescription[0] != 0 || (pContext->fPdfLeft + pContext->fPdfBottom + pContext->fPdfWidth + pContext->fPdfHeight) != 0)
-    {
-        if(!pContext->szPdfReason[0])
-        {
-            CCertificate* pCertificate;
-            long r = pContext->pSignatureGenerator->GetCertificate(&pCertificate);
-            if(r == 0)
-            {
-                string giveName = pCertificate->getSubject().getField(OID_GIVEN_NAME);
-                string surname = pCertificate->getSubject().getField(OID_SURNAME);
-                
-                sprintf(pContext->szPdfReason, "%s %s", giveName.c_str(), surname.c_str());
-                
-                time_t rawtime;
-                struct tm * timeinfo;
-                char buffer[80];
+	try
+	{
+	    if(pContext->szPdfImagePath[0] != 0 || pContext->szPdfDescription[0] != 0 || (pContext->fPdfLeft + pContext->fPdfBottom + pContext->fPdfWidth + pContext->fPdfHeight) != 0)
+	    {
+	        if(!pContext->szPdfReason[0])
+	        {
+	            CCertificate* pCertificate;
+	            long r = pContext->pSignatureGenerator->GetCertificate(&pCertificate);
+	            if(r == 0)
+	            {
+	                string giveName = pCertificate->getSubject().getField(OID_GIVEN_NAME);
+	                string surname = pCertificate->getSubject().getField(OID_SURNAME);
 
-                time (&rawtime);
-                timeinfo = localtime(&rawtime);
+	                sprintf(pContext->szPdfReason, "%s %s", giveName.c_str(), surname.c_str());
 
-                strftime(buffer,sizeof(buffer),"%d/%m/%Y %H:%M:%S",timeinfo);
-                
-                strcpy(pContext->szPdfName, buffer);
+	                time_t rawtime;
+	                struct tm * timeinfo;
+	                char buffer[80];
 
-                pContext->szPdfReasonLabel[0] = 0;
-                pContext->szPdfNameLabel[0] = 0;
-                
-                delete pCertificate;
-            }
-            
-        }
-        sigGen.InitSignature(pContext->nPdfPage, pContext->fPdfLeft, pContext->fPdfBottom, pContext->fPdfWidth, pContext->fPdfHeight, pContext->szPdfReason, pContext->szPdfReasonLabel, pContext->szPdfName,pContext->szPdfNameLabel, pContext->szPdfLocation, pContext->szPdfLocationLabel, sigName.c_str(), pContext->szPdfSubfilter, pContext->szPdfImagePath, pContext->szPdfDescription, NULL, NULL);
-    }
-    else
-    {
-        sigGen.InitSignature(0, pContext->szPdfReason, pContext->szPdfReasonLabel, pContext->szPdfName,pContext->szPdfNameLabel, pContext->szPdfLocation, pContext->szPdfLocationLabel, sigName.c_str(), pContext->szPdfSubfilter);
-    }
-    
-    LOG_DBG((0, "sign_pdf", "InitSignature OK"));
+	                time (&rawtime);
+	                timeinfo = localtime(&rawtime);
+
+	                strftime(buffer,sizeof(buffer),"%d/%m/%Y %H:%M:%S",timeinfo);
+
+	                strcpy(pContext->szPdfName, buffer);
+
+	                pContext->szPdfReasonLabel[0] = 0;
+	                pContext->szPdfNameLabel[0] = 0;
+
+	                delete pCertificate;
+	            }
+
+	        }
+	        sigGen.InitSignature(pContext->nPdfPage, pContext->fPdfLeft, pContext->fPdfBottom, pContext->fPdfWidth, pContext->fPdfHeight, pContext->szPdfReason, pContext->szPdfReasonLabel, pContext->szPdfName,pContext->szPdfNameLabel, pContext->szPdfLocation, pContext->szPdfLocationLabel, sigName.c_str(), pContext->szPdfSubfilter, pContext->szPdfImagePath, pContext->szPdfDescription, NULL, NULL);
+	    }
+	    else
+	    {
+	        sigGen.InitSignature(0, pContext->szPdfReason, pContext->szPdfReasonLabel, pContext->szPdfName,pContext->szPdfNameLabel, pContext->szPdfLocation, pContext->szPdfLocationLabel, sigName.c_str(), pContext->szPdfSubfilter);
+	    }
+
+	    LOG_DBG((0, "sign_pdf", "InitSignature OK"));
+
+	}
+	catch (const ::PoDoFo::PdfError& e)
+	{
+		LOG_ERR((0, "sign_pdf", "InitSignature PdfError: %s", e.what()));
+		return DISIGON_ERROR_INVALID_FILE;
+	}
+	catch (const std::exception& e)
+	{
+		LOG_ERR((0, "sign_pdf", "InitSignature error: %s", e.what()));
+		return DISIGON_ERROR_INVALID_FILE;
+	}
+	catch (...)
+	{
+		LOG_ERR((0, "sign_pdf", "InitSignature unknown error"));
+		return DISIGON_ERROR_INVALID_FILE;
+	}
 
     pContext->pSignatureGenerator->SetHashAlgo(pContext->nHashAlgo);
 
@@ -2023,12 +2048,37 @@ long sign_pdf(DISIGON_SIGN_CONTEXT* pContext, UUCByteArray& data)
     LOG_DBG((0, "sign_pdf", "Set Signature OK"));
 
 #else
-	CIEPdfSigner signer(pContext);
-	PdfMemDocument* document = sigGen.m_pPdfDocument;
-	BufferStreamDevice* device = sigGen.m_pSignOutputDevice;
-	PdfSignature* signature = sigGen.m_pSignatureField;
+	try
+	{
+		CIEPdfSigner signer(pContext);
+		PdfMemDocument* document = sigGen.m_pPdfDocument;
+		BufferStreamDevice* device = sigGen.m_pSignOutputDevice;
+		PdfSignature* signature = sigGen.m_pSignatureField;
 
-	PoDoFo::SignDocument(*document, *device, signer, *signature);
+		if (!document || !device || !signature)
+		{
+			LOG_ERR((0, "sign_pdf", "Null pointer: document=%p device=%p signature=%p",
+				document, device, signature));
+			return DISIGON_ERROR_INVALID_FILE;
+		}
+
+		PoDoFo::SignDocument(*document, *device, signer, *signature);
+	}
+	catch (const ::PoDoFo::PdfError& e)
+	{
+		LOG_ERR((0, "sign_pdf", "SignDocument PdfError: %s", e.what()));
+		return DISIGON_ERROR_INVALID_FILE;
+	}
+	catch (const std::exception& e)
+	{
+		LOG_ERR((0, "sign_pdf", "SignDocument error: %s", e.what()));
+		return DISIGON_ERROR_INVALID_FILE;
+	}
+	catch (...)
+	{
+		LOG_ERR((0, "sign_pdf", "SignDocument unknown error"));
+		return DISIGON_ERROR_INVALID_FILE;
+	}
 #endif
 
     UUCByteArray signedPdf;

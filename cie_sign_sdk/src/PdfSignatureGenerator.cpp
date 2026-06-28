@@ -157,7 +157,64 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 #else
 	Rect rect(left0, bottom0, width0, height0);
 
-	m_pSignatureField = &pPage->CreateField<PdfSignature>(PdfString(szFieldName), rect);
+	// Ensure pre-existing AcroForm widgets are in the page's /Annots.
+	// Some PDFs have signature widgets that reference the page via /P
+	// but the page has no /Annots array; PoDoFo won't discover them.
+	if (auto* acroForm = m_pPdfDocument->GetAcroForm())
+	{
+		auto& pageDict = pPage->GetDictionary();
+		auto* annotsObj = pageDict.FindKey("Annots");
+		for (auto* field : *acroForm)
+		{
+			auto* widget = field->GetWidget();
+			if (widget != nullptr && &widget->MustGetPage() == pPage)
+			{
+				if (annotsObj == nullptr)
+					annotsObj = &pageDict.AddKey(PdfName("Annots"), PdfArray());
+
+				auto& arr = annotsObj->GetArray();
+				auto widgetRef = widget->GetObject().GetIndirectReference();
+				bool found = false;
+				for (auto& item : arr)
+				{
+					if (item.GetReference() == widgetRef)
+					{
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					arr.AddIndirect(widget->GetObject());
+			}
+		}
+	}
+
+	// Ensure unique field name for already-signed PDFs
+	std::string uniqueName(szFieldName);
+	if (auto* acroForm2 = m_pPdfDocument->GetAcroForm())
+	{
+		unsigned suffix = 0;
+		std::string candidate(uniqueName);
+		bool conflict = true;
+		while (conflict)
+		{
+			conflict = false;
+			for (auto* field : *acroForm2)
+			{
+				auto fn = field->GetNameRaw();
+				if (fn.has_value() && *fn == candidate)
+				{
+					conflict = true;
+					break;
+				}
+			}
+			if (conflict)
+				candidate = uniqueName + std::to_string(++suffix + 1);
+		}
+		uniqueName = candidate;
+	}
+
+	m_pSignatureField = &pPage->CreateField<PdfSignature>(PdfString(uniqueName), rect);
 	m_pSignatureField->EnsureValueObject();
 
 	m_pSignatureField->MustGetWidget().SetFlags(static_cast<PdfAnnotationFlags>(0x84));
@@ -378,7 +435,7 @@ void PdfSignatureGenerator::InitSignature(int pageIndex, float left, float botto
 #if PODOFO_VERSION_MAJOR < 1
 			m_pSignatureField->SetAppearanceStream(*sigXObject);
 #else
-			m_pSignatureField->GetWidget()->SetAppearanceStream(*sigXObject);
+			m_pSignatureField->MustGetWidget().SetAppearanceStream(*sigXObject);
 #endif
 
 			LOG_DBG((0, "InitSignature", "SetAppearanceStream OK"));

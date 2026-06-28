@@ -194,6 +194,8 @@ int PDFVerifier::GetNumberOfSignatures(PdfMemDocument* pPdfDocument)
 #else
 	auto& acroForm = pPdfDocument->GetOrCreateAcroForm();
 	const PdfObject *fieldsValue = acroForm.GetObject().GetDictionary().GetKey("Fields");
+	if (fieldsValue == nullptr)
+		return 0;
 	if(fieldsValue->GetDataType() == PdfDataType::Reference)
 		fieldsValue = pPdfDocument->GetObjects().GetObject(fieldsValue->GetReference());
 
