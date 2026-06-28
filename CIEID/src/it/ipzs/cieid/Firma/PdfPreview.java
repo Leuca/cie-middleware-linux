@@ -34,6 +34,12 @@ public class PdfPreview {
     private ImageIcon imgIcon;
     private MoveablePicture signImage;
     private JPanel imgPanel;
+    // Size of the page bitmap as actually drawn inside imgPanel. The page is
+    // letterboxed (centered) within the panel, so these differ from the panel
+    // size and must be used as the reference when converting the signature box
+    // position into page fractions.
+    private int imgWidth;
+    private int imgHeight;
     
     public PdfPreview(JPanel panelPdfPreview, String pdfFilePath, String signImagePath)
     {
@@ -82,15 +88,20 @@ public class PdfPreview {
     private void showPreview()
     {
     	Image tmpImg = images.get(pdfPageIndex);
-    	
+
     	int width = prPanel.getWidth();
     	int height = prPanel.getHeight();
     	
     	int tmpImgWidth = tmpImg.getWidth(null);
     	int tmpImgHeight =  tmpImg.getHeight(null);
     	
-    	int imgHeigth = height;
-    	int imgWidth = width;
+	// Remember the previous page size so the signature box can be re-anchored
+	// to the same relative spot when the preview is re-rendered at a new size.
+	int prevImgWidth = imgWidth;
+	int prevImgHeight = imgHeight;
+
+	imgHeight = height;
+	imgWidth = width;
     
     	if( tmpImgWidth > tmpImgHeight)
     	{
@@ -113,7 +124,20 @@ public class PdfPreview {
     	}
     	
     	
-		imgIcon.setImage(tmpImg.getScaledInstance(imgWidth, imgHeigth, Image.SCALE_AREA_AVERAGING));
+		signImage.setSize((int)(50.0 * signImgMult), (int)(25.0 * signImgMult));
+		// Re-anchor the box to the same relative page position. Without this, a
+		// box placed while the preview was larger keeps its old pixel coordinates;
+		// divided by the now-smaller page they yield fractions > 1 (off-page).
+		if (prevImgWidth > 0 && prevImgHeight > 0)
+		{
+			int nx = (int)((long) signImage.getX() * imgWidth / prevImgWidth);
+			int ny = (int)((long) signImage.getY() * imgHeight / prevImgHeight);
+			nx = Math.max(0, Math.min(nx, imgWidth - signImage.getWidth()));
+			ny = Math.max(0, Math.min(ny, imgHeight - signImage.getHeight()));
+			signImage.setLocation(nx, ny);
+		}
+		signImage.reloadImage();
+		imgIcon.setImage(tmpImg.getScaledInstance(imgWidth, imgHeight, Image.SCALE_AREA_AVERAGING));
 		imgLabel.setIcon(imgIcon);
 		imgLabel.setHorizontalAlignment(JLabel.CENTER);
 		imgLabel.setVerticalAlignment(JLabel.CENTER);
@@ -158,10 +182,13 @@ public class PdfPreview {
     {
     	float infos[] = new float[4];
     	
-    	float x = ((float)signImage.getX() / (float)imgPanel.getWidth());
-    	float y = ((float)(signImage.getY() + signImage.getHeight())/ (float)imgPanel.getHeight());
-    	float w = ((float)signImage.getWidth() / (float)imgPanel.getWidth());
-    	float h = ((float)signImage.getHeight() / (float)imgPanel.getHeight());
+	// The page image exactly fills imgPanel (imgPanel == imgLabel == icon), so the
+	// signature box position in panel coordinates maps directly to page fractions.
+	// showPreview() keeps the box anchored to the page across resizes.
+	float x = ((float)signImage.getX() / (float)imgWidth);
+	float y = ((float)(signImage.getY() + signImage.getHeight()) / (float)imgHeight);
+	float w = ((float)signImage.getWidth() / (float)imgWidth);
+	float h = ((float)signImage.getHeight() / (float)imgHeight);
     	
     	infos[0] = x;
     	infos[1] = y;
